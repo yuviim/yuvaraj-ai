@@ -1,4 +1,5 @@
-import { SiGithub, SiLinkedin, SiMedium, SiYoutube } from "react-icons/si";
+import { SiGithub, SiMedium, SiYoutube } from "react-icons/si";
+import { FaLinkedin } from "react-icons/fa6";
 import { FileText, Presentation } from "lucide-react";
 
 type Props = {
@@ -32,7 +33,7 @@ export function PlatformLinks({
 
       {linkedinUrl && (
         <a href={linkedinUrl} target="_blank" className={chip}>
-          <SiLinkedin className="h-4 w-4 text-[#0A66C2]" />
+          <FaLinkedin className="h-4 w-4 text-[#0A66C2]" />
           LinkedIn
         </a>
       )}
@@ -66,30 +67,4 @@ export function PlatformLinks({
       )}
     </div>
   );
-}
-
-export function PrimaryPlatformIcon({
-  mediumUrl,
-  linkedinUrl,
-  youtubeUrl,
-  githubUrl,
-  websiteSlug,
-}: Props) {
-  if (mediumUrl) {
-    return <SiMedium className="h-7 w-7 text-black" />;
-  }
-
-  if (linkedinUrl) {
-    return <SiLinkedin className="h-7 w-7 text-[#0A66C2]" />;
-  }
-
-  if (youtubeUrl) {
-    return <SiYoutube className="h-7 w-7 text-red-600" />;
-  }
-
-  if (githubUrl) {
-    return <SiGithub className="h-7 w-7 text-black" />;
-  }
-
-  return <FileText className="h-7 w-7 text-blue-600" />;
 }
