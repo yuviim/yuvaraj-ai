@@ -8,7 +8,7 @@ export default function ContactPage() {
     { label: "YouTube", url: "https://www.youtube.com/@yuvarajplatforms", desc: "Architecture deep-dives and walkthroughs", icon: "\u25B6" },
     { label: "Medium", url: "https://medium.com/@yuvii336_72159", desc: "Technical articles and analysis", icon: "M" },
     { label: "GitHub", url: "https://github.com/yuviim", desc: "NexusIQ, portfolio, and projects", icon: "\u2B21" },
-    { label: "Email", url: "mailto:yuvarajm336@gmail.com", desc: "yuvarajm336@gmail.com", icon: "\u2709" },
+    { label: "Email", url: "mailto:yuvarajarch17@gmail.com", desc: "yuvarajarch17@gmail.com", icon: "\u2709" },
   ];
 
   const topics = [
