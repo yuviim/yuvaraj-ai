@@ -17,72 +17,89 @@ export function SiteHeader({ active = "none" }: SiteHeaderProps) {
 
   return (
     <header style={{
-      background: "#fff",
-      borderBottom: "1px solid #E7EAF0",
+      background: "#0E1B33",
       position: "sticky",
       top: 0,
       zIndex: 50,
-      boxShadow: "0 1px 3px rgba(16,24,40,.05)",
+      borderBottom: "1px solid rgba(99,199,222,.18)",
     }}>
       <style dangerouslySetInnerHTML={{ __html: `
-        .nav-link-bold {
+        .bp-nav-link {
           position: relative;
           padding: 6px 2px;
-          color: #2563EB;
-          font-weight: 700;
+          color: #8A97B5;
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 12px;
+          font-weight: 500;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
           transition: color .15s;
         }
-        .nav-link-bold::after {
+        .bp-nav-link::before {
           content: '';
           position: absolute;
-          left: 0; bottom: 0;
-          width: 0%;
-          height: 2px;
-          background: #1D4ED8;
-          transition: width .2s ease;
+          left: -10px; top: 50%;
+          width: 3px; height: 3px;
+          border-radius: 50%;
+          background: #63C7DE;
+          opacity: 0;
+          transform: translateY(-50%);
+          transition: opacity .15s;
         }
-        .nav-link-bold:hover {
-          color: #1D4ED8 !important;
+        .bp-nav-link:hover {
+          color: #E8F6FA !important;
         }
-        .nav-link-bold:hover::after {
-          width: 100%;
+        .bp-nav-link:hover::before {
+          opacity: 1;
         }
-        .nav-link-bold-active {
-          color: #111827 !important;
+        .bp-nav-link-active {
+          color: #63C7DE !important;
         }
-        .nav-link-bold-active::after {
-          width: 100% !important;
-          background: #111827 !important;
+        .bp-nav-link-active::before {
+          opacity: 1 !important;
         }
-        .logo-mark {
-          background: linear-gradient(135deg, #2563EB, #7C3AED);
+        .bp-logo-mark {
+          background: linear-gradient(135deg, #63C7DE, #2C6E8C);
           transition: transform .2s;
         }
-        .logo-link:hover .logo-mark {
-          transform: scale(1.06) rotate(-4deg);
+        .bp-logo-link:hover .bp-logo-mark {
+          transform: rotate(-6deg);
+        }
+        .bp-search input {
+          color: #E8F6FA !important;
+        }
+        .bp-search .search-bar {
+          border: 1px solid rgba(99,199,222,.25) !important;
+          background: rgba(99,199,222,.06) !important;
+        }
+        .bp-search input::placeholder {
+          color: #6C7A99 !important;
+        }
+        .bp-search span {
+          color: #6C7A99 !important;
         }
       `}} />
-      <div className="wrap site-header-inner" style={{ display: "flex", alignItems: "center", gap: "16px", height: "72px" }}>
+      <div className="wrap site-header-inner" style={{ display: "flex", alignItems: "center", gap: "16px", height: "68px" }}>
 
         {/* LOGO — left */}
-        <Link href="/" className="logo-link" style={{ display: "flex", alignItems: "center", gap: "11px", flexShrink: 0 }}>
-          <div className="logo-mark" style={{ width: "38px", height: "38px", borderRadius: "11px", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "16px" }}>Y</div>
+        <Link href="/" className="bp-logo-link" style={{ display: "flex", alignItems: "center", gap: "11px", flexShrink: 0 }}>
+          <div className="bp-logo-mark" style={{ width: "36px", height: "36px", borderRadius: "8px", color: "#0E1B33", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "15px", fontFamily: "'Space Grotesk', sans-serif" }}>Y</div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: "15px", lineHeight: 1.2, letterSpacing: "-0.01em" }}>Yuvaraj</div>
-            <div className="header-tagline" style={{ fontSize: "11px", color: "#9AA3B2", fontWeight: 500 }}>AI Data Platform Architect</div>
+            <div style={{ fontWeight: 700, fontSize: "15px", lineHeight: 1.2, letterSpacing: "-0.01em", color: "#fff", fontFamily: "'Space Grotesk', sans-serif" }}>Yuvaraj</div>
+            <div className="header-tagline mono" style={{ fontSize: "10px", color: "#6C7A99", fontWeight: 500, letterSpacing: "0.03em" }}>AI DATA PLATFORM ARCHITECT</div>
           </div>
         </Link>
 
-        {/* NAV — centered, bold blue */}
+        {/* NAV — centered, mono-cased */}
         <nav className="site-nav" style={{
-          display: "flex", gap: "32px", fontSize: "13.5px",
+          display: "flex", gap: "34px",
           alignItems: "center", flex: 1, justifyContent: "center",
         }}>
           {navItems.map((item) => (
             <Link
               key={item.key}
               href={item.href}
-              className={"nav-link-bold" + (active === item.key ? " nav-link-bold-active" : "")}
+              className={"bp-nav-link" + (active === item.key ? " bp-nav-link-active" : "")}
             >
               {item.label}
             </Link>
@@ -90,10 +107,12 @@ export function SiteHeader({ active = "none" }: SiteHeaderProps) {
         </nav>
 
         {/* SEARCH + CONTACT — right */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
+        <div className="bp-search" style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
           <SearchBar />
           <Link href="/contact" className="btn btn-pri header-contact" style={{
-            background: "linear-gradient(135deg, #2563EB, #3B82F6)",
+            background: "linear-gradient(135deg, #63C7DE, #2C8FAD)",
+            color: "#0A1628",
+            fontWeight: 700,
           }}>
             Contact &#8594;
           </Link>

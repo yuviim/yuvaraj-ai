@@ -1,13 +1,16 @@
 :root {
-  --blue: #2563EB;
-  --blue-soft: #EFF4FF;
-  --ink: #0B1220;
-  --navy: #0A1628;
-  --text: #111827;
+  --navy: #0E1B33;
+  --navy-deep: #0A1628;
+  --cyan: #63C7DE;
+  --cyan-bright: #8FE3F5;
+  --amber: #FFB020;
+  --paper: #F5F3EC;
+  --ink: #12172A;
   --muted: #6B7280;
-  --line: #E7EAF0;
-  --bg: #FFFFFF;
-  --bg-soft: #F8FAFC;
+  --line: #E3DFD3;
+  --bg: #F5F3EC;
+  --bg-soft: #EFECE0;
+  --blue: #2563EB;
   --dp: #2563EB;
   --es: #7C3AED;
   --aa: #F59E0B;
@@ -18,8 +21,8 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--ink);
   background: var(--bg);
   font-size: 14.5px;
   line-height: 1.6;
@@ -38,15 +41,16 @@ a { text-decoration: none; color: inherit; }
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 14px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  box-shadow: 0 1px 2px rgba(14, 27, 51, 0.05);
 }
 
 .eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-weight: 600;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--blue);
+  color: var(--navy);
   margin-bottom: 12px;
 }
 
@@ -62,33 +66,41 @@ a { text-decoration: none; color: inherit; }
 }
 
 .btn-pri {
-  background: var(--blue);
+  background: linear-gradient(135deg, var(--navy), #1A3A5C);
   color: #fff;
 }
 
 .btn-sec {
   border: 1px solid var(--line);
   background: #fff;
-  color: var(--text);
+  color: var(--ink);
+}
+
+h1, h2, h3 {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
 }
 
 h1 {
-  font-size: 40px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.12;
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 h2 {
   font-size: 23px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 h3 {
   font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.mono {
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 /* Responsive grid systems (inline styles can't be overridden by media queries) */

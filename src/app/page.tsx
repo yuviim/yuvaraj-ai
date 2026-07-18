@@ -18,12 +18,48 @@ export default async function Home() {
       <SiteHeader active="none" />
 
       <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes bp-pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: .4; transform: scale(1.4); }
+        }
+        .bp-hero {
+          position: relative;
+          background: linear-gradient(180deg, #0E1B33 0%, #132A4D 100%);
+          overflow: hidden;
+        }
+        .bp-grid-bg {
+          position: absolute;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(99,199,222,.09) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(99,199,222,.09) 1px, transparent 1px);
+          background-size: 46px 46px;
+          mask-image: radial-gradient(ellipse 60% 80% at 68% 35%, black 0%, transparent 75%);
+          -webkit-mask-image: radial-gradient(ellipse 60% 80% at 68% 35%, black 0%, transparent 75%);
+        }
+        .bp-node {
+          position: absolute;
+          width: 6px; height: 6px;
+          border-radius: 50%;
+          background: #8FE3F5;
+          box-shadow: 0 0 12px 2px rgba(143,227,245,.6);
+          animation: bp-pulse 3s ease-in-out infinite;
+        }
+        .bp-eyebrow {
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 11px;
+          font-weight: 500;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: #63C7DE;
+          margin-bottom: 14px;
+        }
         .start-card {
           position: relative;
           padding: 22px;
           border-radius: 14px;
           background: #fff;
-          border: 1px solid #E7EAF0;
+          border: 1px solid var(--line);
           text-decoration: none;
           color: inherit;
           display: block;
@@ -32,7 +68,7 @@ export default async function Home() {
         }
         .start-card:hover {
           transform: translateY(-3px);
-          box-shadow: 0 8px 24px rgba(16,24,40,.1);
+          box-shadow: 0 8px 24px rgba(14,27,51,.12);
         }
         .start-card::before {
           content: '';
@@ -45,8 +81,8 @@ export default async function Home() {
           display: block;
           padding: 18px 22px;
           border-radius: 12px;
-          border: 1px solid #E7EAF0;
-          background: linear-gradient(135deg, #F8FAFC, #EFF4FF);
+          border: 1px solid rgba(99,199,222,.25);
+          background: rgba(255,255,255,.05);
           text-decoration: none;
           color: inherit;
           margin-bottom: 20px;
@@ -55,7 +91,7 @@ export default async function Home() {
         }
         .featured-card:hover {
           transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(37,99,235,.12);
+          box-shadow: 0 6px 20px rgba(99,199,222,.15);
         }
         .footer-cta {
           display: flex;
@@ -66,7 +102,7 @@ export default async function Home() {
           margin: 56px 0 72px;
           flex-wrap: wrap;
           border-radius: 16px;
-          background: linear-gradient(135deg, #0A1628, #1a2d4a);
+          background: linear-gradient(135deg, #0E1B33, #132A4D);
           position: relative;
           overflow: hidden;
         }
@@ -76,20 +112,23 @@ export default async function Home() {
           top: -50%; right: -20%;
           width: 300px; height: 300px;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(37,99,235,.15), transparent 70%);
+          background: radial-gradient(circle, rgba(99,199,222,.15), transparent 70%);
         }
       `}} />
 
-      <main className="wrap">
-
-        {/* HERO */}
-        <section className="hero-grid" style={{ padding: "56px 0 44px", alignItems: "start" }}>
+      {/* HERO — full-bleed blueprint band */}
+      <section className="bp-hero">
+        <div className="bp-grid-bg" aria-hidden="true" />
+        <span className="bp-node" style={{ top: "22%", left: "58%" }} />
+        <span className="bp-node" style={{ top: "62%", left: "78%", animationDelay: "1.1s" }} />
+        <span className="bp-node" style={{ top: "40%", left: "88%", animationDelay: "2s" }} />
+        <div className="wrap hero-grid" style={{ padding: "60px 28px 52px", alignItems: "start", position: "relative", zIndex: 1 }}>
           <div>
-            <div className="eyebrow">Enterprise AI Architecture Library</div>
-            <h1 style={{ marginBottom: "16px" }}>
+            <div className="bp-eyebrow">Enterprise AI Architecture Library</div>
+            <h1 style={{ marginBottom: "16px", color: "#fff" }}>
               Practical reference architectures for enterprise AI.
             </h1>
-            <p style={{ color: "#6B7280", maxWidth: "520px", marginBottom: "24px", fontSize: "15px", lineHeight: 1.7 }}>
+            <p style={{ color: "#A9B8D4", maxWidth: "520px", marginBottom: "24px", fontSize: "15px", lineHeight: 1.7 }}>
               {totalArticles}+ articles, videos, and diagrams across data platforms, agents,
               governance, and sovereign AI &mdash; organized into five topic hubs.
             </p>
@@ -98,51 +137,59 @@ export default async function Home() {
             {featured && (
               <Link href={"/" + featured.slug} className="featured-card">
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#2563EB", animation: "pulse 2s infinite" }} />
-                  <span style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#2563EB" }}>
+                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#FFB020", animation: "bp-pulse 2.5s infinite" }} />
+                  <span className="mono" style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "#FFB020" }}>
                     Latest article
                   </span>
                 </div>
-                <div style={{ fontSize: "15px", fontWeight: 700, color: "#111827", lineHeight: 1.35, marginBottom: "4px" }}>
+                <div style={{ fontSize: "15px", fontWeight: 700, color: "#fff", lineHeight: 1.35, marginBottom: "4px", fontFamily: "'Space Grotesk', sans-serif" }}>
                   {featured.title}
                 </div>
                 {featured.excerpt && (
-                  <div style={{ fontSize: "12.5px", color: "#6B7280", lineHeight: 1.5 }}>
+                  <div style={{ fontSize: "12.5px", color: "#A9B8D4", lineHeight: 1.5 }}>
                     {featured.excerpt.slice(0, 120)}{featured.excerpt.length > 120 ? "..." : ""}
                   </div>
                 )}
-                <span style={{ fontSize: "12.5px", fontWeight: 600, color: "#2563EB", display: "inline-block", marginTop: "8px" }}>
+                <span style={{ fontSize: "12.5px", fontWeight: 600, color: "#63C7DE", display: "inline-block", marginTop: "8px" }}>
                   Read article &#8594;
                 </span>
               </Link>
             )}
 
             <div style={{ display: "flex", gap: "12px" }}>
-              <Link href="/projects" className="btn btn-pri">View projects &#8594;</Link>
-              <Link href="/about" className="btn btn-sec">About Yuvaraj</Link>
+              <Link href="/projects" className="btn" style={{ background: "linear-gradient(135deg, #63C7DE, #2C8FAD)", color: "#0A1628", fontWeight: 700 }}>View projects &#8594;</Link>
+              <Link href="/about" className="btn" style={{ border: "1px solid rgba(99,199,222,.3)", background: "rgba(255,255,255,.04)", color: "#fff" }}>About Yuvaraj</Link>
             </div>
           </div>
 
-          {/* NEXUSIQ CARD */}
-          <div className="card" style={{ padding: "26px" }}>
-            <span style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.12em", color: "#7C3AED", textTransform: "uppercase" }}>
+          {/* NEXUSIQ CARD — dark glass panel */}
+          <div style={{
+            padding: "26px", borderRadius: "14px",
+            background: "rgba(255,255,255,.05)",
+            border: "1px solid rgba(99,199,222,.25)",
+            backdropFilter: "blur(6px)",
+          }}>
+            <span className="mono" style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.1em", color: "#63C7DE", textTransform: "uppercase" }}>
               Flagship reference platform
             </span>
-            <h3 style={{ margin: "6px 0 8px" }}>NexusIQ</h3>
-            <p style={{ fontSize: "13px", color: "#6B7280", lineHeight: 1.6 }}>
+            <h3 style={{ margin: "6px 0 8px", color: "#fff" }}>NexusIQ</h3>
+            <p style={{ fontSize: "13px", color: "#A9B8D4", lineHeight: 1.6 }}>
               A working multi-agent AI control plane with Text-to-SQL, RAG, federated query
               across four engines, role-based governance, and sovereign AI controls.
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", margin: "16px 0" }}>
               {["AI \u2192 SQL", "RAG", "Federation", "Governance"].map((chip) => (
-                <div key={chip} style={{ border: "1px solid #E7EAF0", borderRadius: "9px", padding: "9px 14px", fontSize: "12px", fontWeight: 600, background: "#F8FAFC" }}>{chip}</div>
+                <div key={chip} className="mono" style={{ border: "1px solid rgba(99,199,222,.2)", borderRadius: "9px", padding: "9px 14px", fontSize: "11.5px", fontWeight: 500, background: "rgba(255,255,255,.03)", color: "#D6E4F0" }}>{chip}</div>
               ))}
             </div>
-            <Link href="/nexusiq" className="btn btn-pri" style={{ fontSize: "12.5px", display: "inline-block" }}>
+            <Link href="/nexusiq" className="btn" style={{ fontSize: "12.5px", display: "inline-block", background: "linear-gradient(135deg, #63C7DE, #2C8FAD)", color: "#0A1628", fontWeight: 700 }}>
               Architecture &amp; demo &#8594;
             </Link>
           </div>
-        </section>
+        </div>
+      </section>
+
+      <main className="wrap" style={{ paddingTop: "44px" }}>
 
         {/* START HERE — bold colored header bands, no icons */}
         <section style={{ marginBottom: "48px" }}>
@@ -244,7 +291,7 @@ export default async function Home() {
 
       </main>
 
-      <footer style={{ background: "#fff", borderTop: "1px solid #E7EAF0", padding: "32px 0 56px" }}>
+      <footer style={{ background: "var(--bg)", borderTop: "1px solid var(--line)", padding: "32px 0 56px" }}>
         <div className="wrap" style={{ color: "#6B7280", fontSize: "12.5px", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "24px" }}>
           <div>
             <b style={{ color: "#111827" }}>Yuvaraj</b><br />
