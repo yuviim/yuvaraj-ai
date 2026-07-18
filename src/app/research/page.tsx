@@ -141,8 +141,8 @@ export default async function ResearchPage() {
           </div>
         )}
 
-        {/* LATEST NOTES + ARTICLES */}
-        {allRecent.length > 0 && (
+        {/* LATEST NOTES + ARTICLES — only shown when there's more than one topic to make chronological order meaningful */}
+        {allRecent.length > 0 && activePillars.length > 1 && (
           <>
             <div className="eyebrow" style={{ marginTop: "16px" }}>All field notes</div>
             <h2 style={{ marginBottom: "18px" }}>Notes &amp; research, chronological.</h2>
