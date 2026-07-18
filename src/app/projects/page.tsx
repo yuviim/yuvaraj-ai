@@ -210,7 +210,7 @@ export default function ProjectsPage() {
   return (
     <div>
       <SiteHeader active="projects" />
-      <main className="wrap" style={{ paddingTop: "48px", paddingBottom: "72px", maxWidth: "900px" }}>
+      <main className="wrap" style={{ paddingTop: "48px", paddingBottom: "72px" }}>
 
         {/* HERO */}
         <div style={{ marginBottom: "48px", maxWidth: "640px" }}>
