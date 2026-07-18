@@ -300,6 +300,7 @@ export default async function Home() {
           <div style={{ display: "flex", gap: "20px" }}>
             <Link href="/">Home</Link>
             <Link href="/articles">Articles</Link>
+            <Link href="/research">Research</Link>
             <Link href="/projects">Projects</Link>
             <Link href="/nexusiq">NexusIQ</Link>
             <Link href="/videos">Videos</Link>

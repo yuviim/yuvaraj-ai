@@ -9,6 +9,7 @@ interface SiteHeaderProps {
 export function SiteHeader({ active = "none" }: SiteHeaderProps) {
   const navItems: { href: string; label: string; key: string }[] = [
     { href: "/articles", label: "Articles", key: "articles" },
+    { href: "/research", label: "Research", key: "research" },
     { href: "/projects", label: "Projects", key: "projects" },
     { href: "/nexusiq", label: "NexusIQ", key: "nexusiq" },
     { href: "/videos", label: "Videos", key: "videos" },
