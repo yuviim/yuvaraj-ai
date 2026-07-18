@@ -123,83 +123,87 @@ const projects: Project[] = [
   },
 ];
 
-function ProjectCard({ project, index }: { project: Project; index: number }) {
+function ProjectCard({ project }: { project: Project }) {
   const cat = categoryColors[project.category] || { bg: "#F3F4F6", text: "#374151" };
-  const isReversed = index % 2 === 1;
+  const visibleStack = project.stack.slice(0, 4);
+  const extraCount = project.stack.length - visibleStack.length;
 
   return (
-    <div className="card" style={{ overflow: "hidden", marginBottom: "32px" }}>
-      {/* Diagram */}
+    <div className="card project-card">
+      {/* Diagram thumb — fixed height, uniform across grid */}
       <div style={{
         background: "#F8FAFC",
-        padding: "24px",
         borderBottom: "1px solid #E7EAF0",
+        height: "190px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        minHeight: "260px",
+        overflow: "hidden",
       }}>
-        <a href={project.diagram} target="_blank" rel="noopener noreferrer" style={{ cursor: "zoom-in", display: "block", width: "100%", maxWidth: "700px" }}>
+        <a href={project.diagram} target="_blank" rel="noopener noreferrer" style={{ cursor: "zoom-in", display: "block", width: "100%", height: "100%" }}>
           <img
             src={project.diagram}
             alt={project.diagramAlt}
-            style={{ width: "100%", borderRadius: "8px", display: "block" }}
+            style={{ width: "100%", height: "100%", objectFit: "contain", padding: "14px", display: "block" }}
           />
         </a>
       </div>
 
       {/* Content */}
-      <div style={{ padding: "28px 32px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px", flexWrap: "wrap" }}>
-          <span style={{
-            fontSize: "11px", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase",
-            padding: "4px 12px", borderRadius: "99px", background: cat.bg, color: cat.text,
-          }}>
-            {project.category}
-          </span>
-        </div>
+      <div style={{ padding: "20px 22px 22px" }}>
+        <span style={{
+          fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase",
+          padding: "3px 10px", borderRadius: "99px", background: cat.bg, color: cat.text,
+        }}>
+          {project.category}
+        </span>
 
-        <h3 style={{ fontSize: "20px", fontWeight: 800, marginBottom: "10px", letterSpacing: "-0.01em" }}>
+        <h3 style={{ fontSize: "16.5px", fontWeight: 800, margin: "10px 0 8px", letterSpacing: "-0.01em", lineHeight: 1.3 }}>
           {project.title}
         </h3>
 
-        <p style={{ fontSize: "14px", color: "#374151", lineHeight: 1.7, marginBottom: "16px", maxWidth: "640px" }}>
+        <p style={{
+          fontSize: "13px", color: "#374151", lineHeight: 1.6, marginBottom: "14px",
+          display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden",
+        }}>
           {project.description}
         </p>
 
-        {/* Metrics */}
-        <div style={{ display: "flex", gap: "16px", marginBottom: "20px", flexWrap: "wrap" }}>
-          {project.metrics.map((m) => (
+        {/* Metrics — compact row */}
+        <div style={{ display: "flex", gap: "10px", marginBottom: "14px", flexWrap: "wrap" }}>
+          {project.metrics.slice(0, 3).map((m) => (
             <div key={m.label} style={{
-              padding: "12px 18px", borderRadius: "12px",
+              padding: "8px 12px", borderRadius: "10px",
               background: "#F8FAFC", border: "1px solid #E7EAF0",
-              minWidth: "120px",
             }}>
-              <div style={{ fontSize: "22px", fontWeight: 800, color: "#111827", letterSpacing: "-0.02em" }}>
+              <div style={{ fontSize: "16px", fontWeight: 800, color: "#111827", letterSpacing: "-0.01em" }}>
                 {m.value}
               </div>
-              <div style={{ fontSize: "11px", color: "#9AA3B2", fontWeight: 500, marginTop: "2px" }}>
+              <div style={{ fontSize: "10px", color: "#9AA3B2", fontWeight: 500 }}>
                 {m.label}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Impact */}
-        <p style={{ fontSize: "13px", color: "#6B7280", lineHeight: 1.6, marginBottom: "18px", fontStyle: "italic" }}>
-          {project.impact}
-        </p>
-
-        {/* Tech stack */}
-        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-          {project.stack.map((t) => (
+        {/* Tech stack — truncated */}
+        <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
+          {visibleStack.map((t) => (
             <span key={t} style={{
-              fontSize: "11px", fontWeight: 600, padding: "4px 10px",
+              fontSize: "10.5px", fontWeight: 600, padding: "3px 9px",
               borderRadius: "99px", background: "#F8FAFC", border: "1px solid #E7EAF0", color: "#374151",
             }}>
               {t}
             </span>
           ))}
+          {extraCount > 0 && (
+            <span style={{
+              fontSize: "10.5px", fontWeight: 600, padding: "3px 9px",
+              borderRadius: "99px", background: "#F1F5F9", color: "#9AA3B2",
+            }}>
+              +{extraCount} more
+            </span>
+          )}
         </div>
       </div>
     </div>
@@ -210,10 +214,28 @@ export default function ProjectsPage() {
   return (
     <div>
       <SiteHeader active="projects" />
+      <style dangerouslySetInnerHTML={{ __html: `
+        .project-card {
+          overflow: hidden;
+          transition: transform .2s, box-shadow .2s;
+        }
+        .project-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 10px 26px rgba(14,27,51,.1);
+        }
+        .project-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 20px;
+        }
+        @media (max-width: 860px) {
+          .project-grid { grid-template-columns: 1fr; }
+        }
+      `}} />
       <main className="wrap" style={{ paddingTop: "48px", paddingBottom: "72px" }}>
 
         {/* HERO */}
-        <div style={{ marginBottom: "48px", maxWidth: "640px" }}>
+        <div style={{ marginBottom: "40px", maxWidth: "640px" }}>
           <div className="eyebrow">Enterprise Projects</div>
           <h1 style={{ marginBottom: "14px" }}>
             Systems I&rsquo;ve designed and delivered.
@@ -227,7 +249,7 @@ export default function ProjectsPage() {
 
         {/* SUMMARY STRIP */}
         <div className="stats-grid" style={{
-          display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "14px", marginBottom: "48px",
+          display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "14px", marginBottom: "36px",
         }}>
           {[
             { v: "6", l: "Production systems" },
@@ -242,10 +264,12 @@ export default function ProjectsPage() {
           ))}
         </div>
 
-        {/* PROJECT CARDS */}
-        {projects.map((project, i) => (
-          <ProjectCard key={project.title} project={project} index={i} />
-        ))}
+        {/* PROJECT GRID — 2 columns, compact gallery cards */}
+        <div className="project-grid" style={{ marginBottom: "40px" }}>
+          {projects.map((project) => (
+            <ProjectCard key={project.title} project={project} />
+          ))}
+        </div>
 
         {/* CTA */}
         <section className="card" style={{
