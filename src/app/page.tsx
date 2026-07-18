@@ -20,7 +20,6 @@ export default async function Home() {
       <style dangerouslySetInnerHTML={{ __html: `
         .start-card {
           position: relative;
-          padding: 22px;
           border-radius: 14px;
           background: #fff;
           border: 1px solid #E7EAF0;
@@ -31,30 +30,19 @@ export default async function Home() {
           transition: transform .2s, box-shadow .2s;
         }
         .start-card:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 8px 24px rgba(16,24,40,.1);
+          transform: translateY(-4px);
+          box-shadow: 0 10px 28px rgba(16,24,40,.14);
         }
-        .start-card::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 3px;
-          background: var(--accent);
-          transition: height .2s;
+        .start-card-band {
+          padding: 14px 22px;
+          color: #fff;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
         }
-        .start-card:hover::before {
-          height: 5px;
-        }
-        .start-icon {
-          width: 40px; height: 40px;
-          border-radius: 10px;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 18px;
-          margin-bottom: 12px;
-          transition: transform .2s;
-        }
-        .start-card:hover .start-icon {
-          transform: scale(1.1);
+        .start-card-body {
+          padding: 18px 22px 22px;
         }
         .featured-card {
           display: block;
@@ -159,57 +147,60 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* START HERE — attractive cards with hover effects */}
+        {/* START HERE — bold colored header bands, no icons */}
         <section style={{ marginBottom: "48px" }}>
           <div className="eyebrow" style={{ marginBottom: "16px" }}>Recommended</div>
           <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
 
-            <Link href="/building-enterprise-agentic-ai-systems-intro-mr6fxqfd" className="start-card" style={{ "--accent": "#F59E0B" } as React.CSSProperties}>
-              <div className="start-icon" style={{ background: "#FEF3C7", color: "#D97706" }}>&#9889;</div>
-              <div style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#D97706", marginBottom: "8px" }}>
-                Start here
+            <Link href="/building-enterprise-agentic-ai-systems-intro-mr6fxqfd" className="start-card">
+              <div className="start-card-band" style={{ background: "linear-gradient(135deg, #F59E0B, #D97706)" }}>
+                START HERE
               </div>
-              <div style={{ fontSize: "14.5px", fontWeight: 700, lineHeight: 1.35, marginBottom: "6px" }}>
-                Building Enterprise Agentic AI Systems
+              <div className="start-card-body">
+                <div style={{ fontSize: "14.5px", fontWeight: 700, lineHeight: 1.35, marginBottom: "6px" }}>
+                  Building Enterprise Agentic AI Systems
+                </div>
+                <div style={{ fontSize: "12.5px", color: "#6B7280", lineHeight: 1.5 }}>
+                  A 9-layer reference architecture for enterprise agents. Part 1 of a deep-dive series.
+                </div>
+                <span style={{ fontSize: "12px", fontWeight: 600, color: "#D97706", display: "inline-block", marginTop: "10px" }}>
+                  Read article &#8594;
+                </span>
               </div>
-              <div style={{ fontSize: "12.5px", color: "#6B7280", lineHeight: 1.5 }}>
-                A 9-layer reference architecture for enterprise agents. Part 1 of a deep-dive series.
-              </div>
-              <span style={{ fontSize: "12px", fontWeight: 600, color: "#D97706", display: "inline-block", marginTop: "10px" }}>
-                Read article &#8594;
-              </span>
             </Link>
 
-            <Link href="/projects" className="start-card" style={{ "--accent": "#2563EB" } as React.CSSProperties}>
-              <div className="start-icon" style={{ background: "#DBEAFE", color: "#2563EB" }}>&#9878;</div>
-              <div style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#2563EB", marginBottom: "8px" }}>
-                6 enterprise projects
+            <Link href="/projects" className="start-card">
+              <div className="start-card-band" style={{ background: "linear-gradient(135deg, #2563EB, #1D4ED8)" }}>
+                6 ENTERPRISE PROJECTS
               </div>
-              <div style={{ fontSize: "14.5px", fontWeight: 700, lineHeight: 1.35, marginBottom: "6px" }}>
-                Systems I&rsquo;ve Designed &amp; Delivered
+              <div className="start-card-body">
+                <div style={{ fontSize: "14.5px", fontWeight: 700, lineHeight: 1.35, marginBottom: "6px" }}>
+                  Systems I&rsquo;ve Designed &amp; Delivered
+                </div>
+                <div style={{ fontSize: "12.5px", color: "#6B7280", lineHeight: 1.5 }}>
+                  Architecture diagrams, tech stacks, and $16M+ in measurable business impact.
+                </div>
+                <span style={{ fontSize: "12px", fontWeight: 600, color: "#2563EB", display: "inline-block", marginTop: "10px" }}>
+                  View projects &#8594;
+                </span>
               </div>
-              <div style={{ fontSize: "12.5px", color: "#6B7280", lineHeight: 1.5 }}>
-                Architecture diagrams, tech stacks, and $16M+ in measurable business impact.
-              </div>
-              <span style={{ fontSize: "12px", fontWeight: 600, color: "#2563EB", display: "inline-block", marginTop: "10px" }}>
-                View projects &#8594;
-              </span>
             </Link>
 
-            <Link href="/nexusiq" className="start-card" style={{ "--accent": "#7C3AED" } as React.CSSProperties}>
-              <div className="start-icon" style={{ background: "#EDE9FE", color: "#7C3AED" }}>&#9670;</div>
-              <div style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#7C3AED", marginBottom: "8px" }}>
-                Flagship platform
+            <Link href="/nexusiq" className="start-card">
+              <div className="start-card-band" style={{ background: "linear-gradient(135deg, #7C3AED, #6D28D9)" }}>
+                FLAGSHIP PLATFORM
               </div>
-              <div style={{ fontSize: "14.5px", fontWeight: 700, lineHeight: 1.35, marginBottom: "6px" }}>
-                NexusIQ Architecture Walkthrough
+              <div className="start-card-body">
+                <div style={{ fontSize: "14.5px", fontWeight: 700, lineHeight: 1.35, marginBottom: "6px" }}>
+                  NexusIQ Architecture Walkthrough
+                </div>
+                <div style={{ fontSize: "12.5px", color: "#6B7280", lineHeight: 1.5 }}>
+                  Multi-agent AI with federated query across Databricks, Snowflake, MySQL, and Exasol.
+                </div>
+                <span style={{ fontSize: "12px", fontWeight: 600, color: "#7C3AED", display: "inline-block", marginTop: "10px" }}>
+                  Explore NexusIQ &#8594;
+                </span>
               </div>
-              <div style={{ fontSize: "12.5px", color: "#6B7280", lineHeight: 1.5 }}>
-                Multi-agent AI with federated query across Databricks, Snowflake, MySQL, and Exasol.
-              </div>
-              <span style={{ fontSize: "12px", fontWeight: 600, color: "#7C3AED", display: "inline-block", marginTop: "10px" }}>
-                Explore NexusIQ &#8594;
-              </span>
             </Link>
 
           </div>
