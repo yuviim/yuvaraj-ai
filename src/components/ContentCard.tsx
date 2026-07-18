@@ -33,6 +33,7 @@ interface ContentCardProps {
     title: string;
     slug: string;
     subtitle?: string | null;
+    coverImage?: string | null;
     pillar: string;
     source: string;
     format: string;
@@ -74,10 +75,10 @@ export function ContentCard({ item }: ContentCardProps) {
         justifyContent: "center",
       },
     },
-      // Pillar background image
-      pillarImages[item.pillar]
+      // Cover image — per-article coverImage takes priority, falls back to pillar default
+      (item.coverImage || pillarImages[item.pillar])
         ? React.createElement("img", {
-            src: pillarImages[item.pillar],
+            src: item.coverImage || pillarImages[item.pillar],
             alt: "",
             style: {
               position: "absolute", inset: 0, width: "100%", height: "100%",

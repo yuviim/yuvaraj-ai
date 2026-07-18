@@ -24,6 +24,7 @@ interface ContentItem {
   status: string;
   publishedAt: string | null;
   readingTimeMin: number | null;
+  coverImage: string | null;
 }
 
 function extractYouTubeId(url: string): string | null {
@@ -55,6 +56,7 @@ export default function ContentStudio() {
     format: "ARTICLE",
     status: "DRAFT",
     publishDate: new Date().toISOString().split("T")[0],
+    coverImage: "",
   });
 
   const fetchLibrary = useCallback(async () => {
@@ -89,7 +91,7 @@ export default function ContentStudio() {
       });
       if (res.ok) {
         if (typeof window !== "undefined") window.alert(publishStatus === "PUBLISHED" ? "Published!" : "Saved as draft!");
-        setContent({ title: "", body: "", pillar: "DP", format: "ARTICLE", status: "DRAFT", publishDate: new Date().toISOString().split("T")[0] });
+        setContent({ title: "", body: "", pillar: "DP", format: "ARTICLE", status: "DRAFT", publishDate: new Date().toISOString().split("T")[0], coverImage: "" });
         setEditingId(null);
         fetchLibrary();
       } else {
@@ -110,6 +112,7 @@ export default function ContentStudio() {
       format: item.format,
       status: item.status,
       publishDate: item.publishedAt ? new Date(item.publishedAt).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
+      coverImage: item.coverImage || "",
     });
     setEditingId(item.id);
     setView("editor");
@@ -127,7 +130,7 @@ export default function ContentStudio() {
   };
 
   const handleNew = () => {
-    setContent({ title: "", body: "", pillar: "DP", format: "ARTICLE", status: "DRAFT", publishDate: new Date().toISOString().split("T")[0] });
+    setContent({ title: "", body: "", pillar: "DP", format: "ARTICLE", status: "DRAFT", publishDate: new Date().toISOString().split("T")[0], coverImage: "" });
     setEditingId(null);
     setView("editor");
     setPreview(false);
@@ -497,6 +500,21 @@ export default function ContentStudio() {
                       {p} &mdash; {pillarLabels[p]}
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Cover Image */}
+              <div style={{ marginBottom: "16px" }}>
+                <div style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9AA3B2", marginBottom: "6px" }}>Cover Image <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span></div>
+                <input
+                  type="text"
+                  value={content.coverImage}
+                  onChange={(e) => setContent({ ...content, coverImage: e.target.value })}
+                  placeholder="/images/research/my-cover.png"
+                  style={{ width: "100%", border: "1px solid #E7EAF0", borderRadius: "9px", padding: "9px 12px", fontSize: "12.5px", fontWeight: 500, background: "#fff", fontFamily: "inherit" }}
+                />
+                <div style={{ fontSize: "10.5px", color: "#9AA3B2", marginTop: "5px", lineHeight: 1.5 }}>
+                  Paste a path or URL. Leave blank to use the topic hub&rsquo;s default image.
                 </div>
               </div>
 
