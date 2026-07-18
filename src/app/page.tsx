@@ -235,11 +235,6 @@ export default async function Home() {
             View all articles &amp; videos &#8594;
           </Link>
         </div>
-        <div style={{ textAlign: "center", marginTop: "24px" }}>
-          <Link href="/research" className="btn btn-sec" style={{ fontSize: "13px" }}>
-            View all articles &amp; research &#8594;
-          </Link>
-        </div>
 
         {/* FOOTER CTA */}
         <section className="footer-cta">
@@ -276,7 +271,6 @@ export default async function Home() {
           <div style={{ display: "flex", gap: "20px" }}>
             <Link href="/">Library</Link>
             <Link href="/articles">Articles</Link>
-            <Link href="/research">Research</Link>
             <Link href="/projects">Projects</Link>
             <Link href="/nexusiq">NexusIQ</Link>
             <Link href="/videos">Videos</Link>
