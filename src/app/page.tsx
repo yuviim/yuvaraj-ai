@@ -207,11 +207,6 @@ export default async function Home() {
           </div>
         </div>
         <ContentStream items={latest} />
-        <div style={{ textAlign: "center", marginTop: "24px" }}>
-          <Link href="/videos" className="btn btn-sec" style={{ fontSize: "13px" }}>
-            View all videos View all articles &amp; researchamp; articles &#8594;
-          </Link>
-        </div>
 
         {/* FOOTER CTA */}
         <section className="footer-cta">
