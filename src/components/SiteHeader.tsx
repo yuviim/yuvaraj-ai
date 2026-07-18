@@ -17,83 +17,72 @@ export function SiteHeader({ active = "none" }: SiteHeaderProps) {
 
   return (
     <header style={{
-      background: "linear-gradient(135deg, #0A1628, #142943)",
+      background: "#fff",
+      borderBottom: "1px solid #E7EAF0",
       position: "sticky",
       top: 0,
       zIndex: 50,
-      boxShadow: "0 2px 12px rgba(0,0,0,.25)",
+      boxShadow: "0 1px 3px rgba(16,24,40,.05)",
     }}>
       <style dangerouslySetInnerHTML={{ __html: `
-        .nav-link-dark {
+        .nav-link-bold {
           position: relative;
           padding: 6px 2px;
-          color: #9AA3B2;
+          color: #2563EB;
+          font-weight: 700;
           transition: color .15s;
         }
-        .nav-link-dark::after {
+        .nav-link-bold::after {
           content: '';
           position: absolute;
           left: 0; bottom: 0;
           width: 0%;
           height: 2px;
-          background: #3B82F6;
+          background: #1D4ED8;
           transition: width .2s ease;
         }
-        .nav-link-dark:hover {
-          color: #fff !important;
+        .nav-link-bold:hover {
+          color: #1D4ED8 !important;
         }
-        .nav-link-dark:hover::after {
+        .nav-link-bold:hover::after {
           width: 100%;
         }
-        .nav-link-dark-active {
-          color: #fff !important;
+        .nav-link-bold-active {
+          color: #111827 !important;
         }
-        .nav-link-dark-active::after {
+        .nav-link-bold-active::after {
           width: 100% !important;
-          background: #3B82F6 !important;
+          background: #111827 !important;
         }
-        .logo-mark-dark {
-          background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+        .logo-mark {
+          background: linear-gradient(135deg, #2563EB, #7C3AED);
           transition: transform .2s;
         }
-        .logo-link-dark:hover .logo-mark-dark {
+        .logo-link:hover .logo-mark {
           transform: scale(1.06) rotate(-4deg);
-        }
-        .dark-search .search-bar {
-          border: 1px solid rgba(255,255,255,.15) !important;
-          background: rgba(255,255,255,.06) !important;
-        }
-        .dark-search .search-bar input {
-          color: #fff !important;
-        }
-        .dark-search .search-bar input::placeholder {
-          color: #6B7A99 !important;
-        }
-        .dark-search .search-bar span {
-          color: #6B7A99 !important;
         }
       `}} />
       <div className="wrap site-header-inner" style={{ display: "flex", alignItems: "center", gap: "16px", height: "72px" }}>
 
         {/* LOGO — left */}
-        <Link href="/" className="logo-link-dark" style={{ display: "flex", alignItems: "center", gap: "11px", flexShrink: 0 }}>
-          <div className="logo-mark-dark" style={{ width: "38px", height: "38px", borderRadius: "11px", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "16px" }}>Y</div>
+        <Link href="/" className="logo-link" style={{ display: "flex", alignItems: "center", gap: "11px", flexShrink: 0 }}>
+          <div className="logo-mark" style={{ width: "38px", height: "38px", borderRadius: "11px", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "16px" }}>Y</div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: "15px", lineHeight: 1.2, letterSpacing: "-0.01em", color: "#fff" }}>Yuvaraj</div>
-            <div className="header-tagline" style={{ fontSize: "11px", color: "#6B7A99", fontWeight: 500 }}>AI Data Platform Architect</div>
+            <div style={{ fontWeight: 800, fontSize: "15px", lineHeight: 1.2, letterSpacing: "-0.01em" }}>Yuvaraj</div>
+            <div className="header-tagline" style={{ fontSize: "11px", color: "#9AA3B2", fontWeight: 500 }}>AI Data Platform Architect</div>
           </div>
         </Link>
 
-        {/* NAV — centered in remaining space */}
+        {/* NAV — centered, bold blue */}
         <nav className="site-nav" style={{
-          display: "flex", gap: "32px", fontSize: "13.5px", fontWeight: 600,
+          display: "flex", gap: "32px", fontSize: "13.5px",
           alignItems: "center", flex: 1, justifyContent: "center",
         }}>
           {navItems.map((item) => (
             <Link
               key={item.key}
               href={item.href}
-              className={"nav-link-dark" + (active === item.key ? " nav-link-dark-active" : "")}
+              className={"nav-link-bold" + (active === item.key ? " nav-link-bold-active" : "")}
             >
               {item.label}
             </Link>
@@ -102,11 +91,9 @@ export function SiteHeader({ active = "none" }: SiteHeaderProps) {
 
         {/* SEARCH + CONTACT — right */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
-          <div className="dark-search">
-            <SearchBar />
-          </div>
+          <SearchBar />
           <Link href="/contact" className="btn btn-pri header-contact" style={{
-            background: "linear-gradient(135deg, #3B82F6, #2563EB)",
+            background: "linear-gradient(135deg, #2563EB, #3B82F6)",
           }}>
             Contact &#8594;
           </Link>
