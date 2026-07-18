@@ -45,6 +45,17 @@ export default async function Home() {
         .start-card:hover::before {
           height: 5px;
         }
+        .start-icon {
+          width: 40px; height: 40px;
+          border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 18px;
+          margin-bottom: 12px;
+          transition: transform .2s;
+        }
+        .start-card:hover .start-icon {
+          transform: scale(1.1);
+        }
         .featured-card {
           display: block;
           padding: 18px 22px;
@@ -154,6 +165,10 @@ export default async function Home() {
           <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
 
             <Link href="/building-enterprise-agentic-ai-systems-intro-mr6fxqfd" className="start-card" style={{ "--accent": "#F59E0B" } as React.CSSProperties}>
+              <div className="start-icon" style={{ background: "#FEF3C7", color: "#D97706" }}>&#9889;</div>
+              <div style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#D97706", marginBottom: "8px" }}>
+                Start here
+              </div>
               <div style={{ fontSize: "14.5px", fontWeight: 700, lineHeight: 1.35, marginBottom: "6px" }}>
                 Building Enterprise Agentic AI Systems
               </div>
@@ -166,6 +181,10 @@ export default async function Home() {
             </Link>
 
             <Link href="/projects" className="start-card" style={{ "--accent": "#2563EB" } as React.CSSProperties}>
+              <div className="start-icon" style={{ background: "#DBEAFE", color: "#2563EB" }}>&#9878;</div>
+              <div style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#2563EB", marginBottom: "8px" }}>
+                6 enterprise projects
+              </div>
               <div style={{ fontSize: "14.5px", fontWeight: 700, lineHeight: 1.35, marginBottom: "6px" }}>
                 Systems I&rsquo;ve Designed &amp; Delivered
               </div>
@@ -178,6 +197,10 @@ export default async function Home() {
             </Link>
 
             <Link href="/nexusiq" className="start-card" style={{ "--accent": "#7C3AED" } as React.CSSProperties}>
+              <div className="start-icon" style={{ background: "#EDE9FE", color: "#7C3AED" }}>&#9670;</div>
+              <div style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#7C3AED", marginBottom: "8px" }}>
+                Flagship platform
+              </div>
               <div style={{ fontSize: "14.5px", fontWeight: 700, lineHeight: 1.35, marginBottom: "6px" }}>
                 NexusIQ Architecture Walkthrough
               </div>
@@ -207,6 +230,16 @@ export default async function Home() {
           </div>
         </div>
         <ContentStream items={latest} />
+        <div style={{ textAlign: "center", marginTop: "24px" }}>
+          <Link href="/articles" className="btn btn-sec" style={{ fontSize: "13px" }}>
+            View all articles &amp; videos &#8594;
+          </Link>
+        </div>
+        <div style={{ textAlign: "center", marginTop: "24px" }}>
+          <Link href="/research" className="btn btn-sec" style={{ fontSize: "13px" }}>
+            View all articles &amp; research &#8594;
+          </Link>
+        </div>
 
         {/* FOOTER CTA */}
         <section className="footer-cta">
@@ -242,6 +275,7 @@ export default async function Home() {
           </div>
           <div style={{ display: "flex", gap: "20px" }}>
             <Link href="/">Library</Link>
+            <Link href="/articles">Articles</Link>
             <Link href="/research">Research</Link>
             <Link href="/projects">Projects</Link>
             <Link href="/nexusiq">NexusIQ</Link>

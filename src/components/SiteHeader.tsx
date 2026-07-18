@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SearchBar } from "./SearchBar";
 
 interface SiteHeaderProps {
-  active?: "architecture" | "research" | "projects" | "videos" | "about" | "nexusiq" | "none";
+  active?: "architecture" | "articles" | "research" | "projects" | "videos" | "about" | "nexusiq" | "none";
 }
 
 const activeStyle: React.CSSProperties = {
@@ -26,6 +26,7 @@ export function SiteHeader({ active = "none" }: SiteHeaderProps) {
         </Link>
         <nav className="site-nav" style={{ display: "flex", gap: "22px", fontSize: "13.5px", fontWeight: 500, color: "#6B7280", alignItems: "center" }}>
           <Link href="/" style={active === "architecture" ? activeStyle : undefined}>Library</Link>
+          <Link href="/articles" style={active === "articles" ? activeStyle : undefined}>Articles</Link>
           <Link href="/research" style={active === "research" ? activeStyle : undefined}>Research</Link>
           <Link href="/projects" style={active === "projects" ? activeStyle : undefined}>Projects</Link>
           <Link href="/nexusiq" style={active === "nexusiq" ? activeStyle : undefined}>NexusIQ</Link>
