@@ -25,7 +25,6 @@ export function SiteHeader({ active = "none" }: SiteHeaderProps) {
           </div>
         </Link>
         <nav className="site-nav" style={{ display: "flex", gap: "22px", fontSize: "13.5px", fontWeight: 500, color: "#6B7280", alignItems: "center" }}>
-          <Link href="/" style={active === "architecture" ? activeStyle : undefined}>Library</Link>
           <Link href="/articles" style={active === "articles" ? activeStyle : undefined}>Articles</Link>
           <Link href="/projects" style={active === "projects" ? activeStyle : undefined}>Projects</Link>
           <Link href="/nexusiq" style={active === "nexusiq" ? activeStyle : undefined}>NexusIQ</Link>

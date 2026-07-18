@@ -269,7 +269,7 @@ export default async function Home() {
             Enterprise AI Architecture Library
           </div>
           <div style={{ display: "flex", gap: "20px" }}>
-            <Link href="/">Library</Link>
+            <Link href="/">Home</Link>
             <Link href="/articles">Articles</Link>
             <Link href="/projects">Projects</Link>
             <Link href="/nexusiq">NexusIQ</Link>
