@@ -175,6 +175,29 @@ export default function ContentStudio() {
     e.target.value = "";
   };
 
+  const [coverUploading, setCoverUploading] = useState(false);
+  const handleCoverImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCoverUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (res.ok) {
+        const data = await res.json();
+        setContent((prev) => ({ ...prev, coverImage: data.url }));
+      } else {
+        const err = await res.json();
+        if (typeof window !== "undefined") window.alert("Cover upload failed: " + (err.error || "Unknown"));
+      }
+    } catch (err) {
+      if (typeof window !== "undefined") window.alert("Cover upload failed: " + err);
+    }
+    setCoverUploading(false);
+    e.target.value = "";
+  };
+
   const insertMarkdown = (syntax: string) => {
     if (typeof document === "undefined") return;
     const ta = document.getElementById("editor-body") as HTMLTextAreaElement | null;
@@ -506,15 +529,39 @@ export default function ContentStudio() {
               {/* Cover Image */}
               <div style={{ marginBottom: "16px" }}>
                 <div style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9AA3B2", marginBottom: "6px" }}>Cover Image <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span></div>
-                <input
-                  type="text"
-                  value={content.coverImage}
-                  onChange={(e) => setContent({ ...content, coverImage: e.target.value })}
-                  placeholder="/images/research/my-cover.png"
-                  style={{ width: "100%", border: "1px solid #E7EAF0", borderRadius: "9px", padding: "9px 12px", fontSize: "12.5px", fontWeight: 500, background: "#fff", fontFamily: "inherit" }}
-                />
+
+                {content.coverImage ? (
+                  <div style={{ marginBottom: "8px" }}>
+                    <div style={{ position: "relative", borderRadius: "9px", overflow: "hidden", border: "1px solid #E7EAF0", aspectRatio: "16/9", background: "#F8FAFC" }}>
+                      <img src={content.coverImage} alt="Cover preview" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setContent({ ...content, coverImage: "" })}
+                      style={{ marginTop: "6px", fontSize: "11px", fontWeight: 600, color: "#DC2626", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                    >
+                      Remove cover image
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <input type="file" id="cover-image-upload" accept="image/*" style={{ display: "none" }} onChange={handleCoverImageUpload} />
+                    <label
+                      htmlFor="cover-image-upload"
+                      style={{
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                        width: "100%", border: "1px dashed #E7EAF0", borderRadius: "9px", padding: "18px 12px",
+                        fontSize: "12.5px", fontWeight: 600, color: coverUploading ? "#9AA3B2" : "#2563EB",
+                        background: "#F8FAFC", cursor: coverUploading ? "default" : "pointer",
+                      }}
+                    >
+                      {coverUploading ? "Uploading..." : "\uD83D\uDCF7 Upload cover image"}
+                    </label>
+                  </>
+                )}
+
                 <div style={{ fontSize: "10.5px", color: "#9AA3B2", marginTop: "5px", lineHeight: 1.5 }}>
-                  Paste a path or URL. Leave blank to use the topic hub&rsquo;s default image.
+                  Uploads directly to storage &mdash; leave blank to use the topic hub&rsquo;s default image.
                 </div>
               </div>
 
