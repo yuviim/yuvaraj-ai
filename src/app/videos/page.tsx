@@ -47,7 +47,19 @@ function VideoCard({ video, episodeNum }: { video: VideoItem; episodeNum?: numbe
     <Link href={"/" + video.slug} style={{ textDecoration: "none", color: "inherit" }}>
       <div className="card" style={{ overflow: "hidden" }}>
         <div style={{ aspectRatio: "16/9", position: "relative", overflow: "hidden", background: "linear-gradient(150deg, #0A1628 20%, #1e3a5f 80%)" }}>
-          {thumb && <img src={thumb} alt={video.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
+          {thumb && (
+            <img
+              src={thumb}
+              alt={video.title}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              onError={(e) => {
+                const img = e.currentTarget;
+                if (img.src.includes("maxresdefault")) {
+                  img.src = img.src.replace("maxresdefault", "hqdefault");
+                }
+              }}
+            />
+          )}
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: thumb ? "rgba(0,0,0,.12)" : "transparent" }}>
             <span style={{ width: "44px", height: "44px", borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "flex", alignItems: "center", justifyContent: "center", color: "#0B1220", fontSize: "14px", paddingLeft: "3px", boxShadow: "0 2px 8px rgba(0,0,0,.2)" }}>&#9654;</span>
           </div>
