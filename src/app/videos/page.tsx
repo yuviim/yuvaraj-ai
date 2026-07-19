@@ -30,6 +30,7 @@ interface VideoItem {
   pillar: string;
   source: string;
   publishedAt: string | null;
+  coverImage: string | null;
 }
 
 function getYouTubeId(text: string): string | null {
@@ -41,7 +42,7 @@ function getYouTubeId(text: string): string | null {
 
 function VideoCard({ video, episodeNum }: { video: VideoItem; episodeNum?: number }) {
   const ytId = video.body ? getYouTubeId(video.body) : null;
-  const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : null;
+  const thumb = video.coverImage || (ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : null);
 
   return (
     <Link href={"/" + video.slug} style={{ textDecoration: "none", color: "inherit" }}>
@@ -56,6 +57,8 @@ function VideoCard({ video, episodeNum }: { video: VideoItem; episodeNum?: numbe
                 const img = e.currentTarget;
                 if (img.src.includes("maxresdefault")) {
                   img.src = img.src.replace("maxresdefault", "hqdefault");
+                } else if (img.src.includes("hqdefault")) {
+                  img.src = img.src.replace("hqdefault", "default");
                 }
               }}
             />
