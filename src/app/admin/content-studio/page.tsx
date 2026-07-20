@@ -41,6 +41,43 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
+// Resize + compress an image client-side before upload, so files always match
+// the site's actual display width instead of uploading raw, oversized screenshots.
+function resizeImage(file: File, maxWidth = 1600, quality = 0.85): Promise<File> {
+  return new Promise((resolve) => {
+    // Skip resizing for already-small files or non-standard image types (e.g. SVG)
+    if (file.type === "image/svg+xml" || file.size < 200 * 1024) {
+      resolve(file);
+      return;
+    }
+    const img = new window.Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxWidth / img.width);
+      const targetW = Math.round(img.width * scale);
+      const targetH = Math.round(img.height * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = targetW;
+      canvas.height = targetH;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { resolve(file); return; }
+      ctx.drawImage(img, 0, 0, targetW, targetH);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { resolve(file); return; }
+          const newName = file.name.replace(/\.\w+$/, "") + ".jpg";
+          resolve(new File([blob], newName, { type: "image/jpeg" }));
+        },
+        "image/jpeg",
+        quality
+      );
+    };
+    img.onerror = () => resolve(file);
+    img.src = url;
+  });
+}
+
 export default function ContentStudio() {
   const [view, setView] = useState<"editor" | "library">("editor");
   const [preview, setPreview] = useState(false);
@@ -154,8 +191,9 @@ export default function ContentStudio() {
     if (!file) return;
     setUploading(true);
     try {
+      const resized = await resizeImage(file);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", resized);
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       if (res.ok) {
         const data = await res.json();
@@ -181,8 +219,10 @@ export default function ContentStudio() {
     if (!file) return;
     setCoverUploading(true);
     try {
+      // Cover images render at 16:9 in cards, so a tighter max width is enough
+      const resized = await resizeImage(file, 1280, 0.85);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", resized);
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       if (res.ok) {
         const data = await res.json();
@@ -299,8 +339,8 @@ export default function ContentStudio() {
     const imgMatch = line.trim().match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
     if (imgMatch) {
       return (
-        <div key={i} style={{ margin: "16px 0" }}>
-          <img src={imgMatch[2]} alt={imgMatch[1]} style={{ maxWidth: "100%", borderRadius: "10px", border: "1px solid #E7EAF0" }} />
+        <div key={i} style={{ margin: "16px 0", textAlign: "center" }}>
+          <img src={imgMatch[2]} alt={imgMatch[1]} style={{ width: "100%", maxWidth: "620px", borderRadius: "10px", border: "1px solid #E7EAF0" }} />
           {imgMatch[1] && <div style={{ fontSize: "12px", color: "#9AA3B2", marginTop: "6px", textAlign: "center" }}>{imgMatch[1]}</div>}
         </div>
       );
@@ -363,33 +403,46 @@ export default function ContentStudio() {
 
   return (
     <div>
-      <header style={{ background: "#fff", borderBottom: "1px solid #E7EAF0", position: "sticky", top: 0, zIndex: 50 }}>
-        <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between", height: "54px" }}>
+      <header style={{ background: "linear-gradient(135deg, #0E1B33, #142943)", position: "sticky", top: 0, zIndex: 50, boxShadow: "0 2px 12px rgba(0,0,0,.2)" }}>
+        <style dangerouslySetInnerHTML={{ __html: `
+          .cs-toolbar-btn { transition: background .12s, border-color .12s, transform .1s; }
+          .cs-toolbar-btn:hover { background: #EEF2F6 !important; transform: translateY(-1px); }
+          .cs-toolbar-btn:active { transform: translateY(0); }
+          .cs-spinner {
+            width: 13px; height: 13px; border-radius: 50%;
+            border: 2px solid rgba(44,110,140,.25); border-top-color: #2C6E8C;
+            animation: cs-spin .7s linear infinite; display: inline-block;
+          }
+          @keyframes cs-spin { to { transform: rotate(360deg); } }
+          .cs-lib-item { transition: transform .15s, box-shadow .15s; }
+          .cs-lib-item:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(14,27,51,.08); }
+        `}} />
+        <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between", height: "60px" }}>
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: "#2563EB", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "12px" }}>Y</div>
+            <div style={{ width: "32px", height: "32px", borderRadius: "9px", background: "linear-gradient(135deg, #63C7DE, #2C6E8C)", color: "#0A1628", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "13px", fontFamily: "'Space Grotesk', sans-serif" }}>Y</div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: "13px", lineHeight: 1.2 }}>YuvarajAI CMS</div>
-              <div style={{ fontSize: "10.5px", color: "#6B7280" }}>Architecture Publishing</div>
+              <div style={{ fontWeight: 700, fontSize: "13px", lineHeight: 1.2, color: "#fff", fontFamily: "'Space Grotesk', sans-serif" }}>YuvarajAI CMS</div>
+              <div className="mono" style={{ fontSize: "10px", color: "#6C7A99", letterSpacing: "0.03em" }}>ARCHITECTURE PUBLISHING</div>
             </div>
           </Link>
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-            <span style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", padding: "4px 10px", borderRadius: "99px", background: editingId ? "#FEF6E7" : "#E5E7EB", color: editingId ? "#B45309" : "#4B5563" }}>
+            <span className="mono" style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.08em", padding: "4px 10px", borderRadius: "99px", background: editingId ? "rgba(255,176,32,.15)" : "rgba(255,255,255,.1)", color: editingId ? "#FFB020" : "#9AA3B2", border: editingId ? "1px solid rgba(255,176,32,.3)" : "1px solid rgba(255,255,255,.15)" }}>
               {editingId ? "EDITING" : "NEW"}
             </span>
             {view === "editor" && (
-              <button onClick={() => setPreview(!preview)} className="btn btn-sec" style={{ fontSize: "12px", padding: "8px 14px" }}>
+              <button onClick={() => setPreview(!preview)} style={{ fontSize: "12px", padding: "8px 14px", fontWeight: 600, borderRadius: "9px", border: "1px solid rgba(255,255,255,.2)", background: "rgba(255,255,255,.06)", color: "#fff", cursor: "pointer", fontFamily: "inherit" }}>
                 {preview ? "\u270E Edit" : "\uD83D\uDC41 Preview"}
               </button>
             )}
-            <button onClick={() => handleSave("DRAFT")} disabled={saving} className="btn btn-sec" style={{ fontSize: "12px", padding: "8px 14px" }}>Save draft</button>
-            <button onClick={() => handleSave("PUBLISHED")} disabled={saving} className="btn btn-pri" style={{ fontSize: "12px", padding: "8px 16px" }}>
+            <button onClick={() => handleSave("DRAFT")} disabled={saving} style={{ fontSize: "12px", padding: "8px 14px", fontWeight: 600, borderRadius: "9px", border: "1px solid rgba(255,255,255,.2)", background: "rgba(255,255,255,.06)", color: "#fff", cursor: "pointer", fontFamily: "inherit" }}>Save draft</button>
+            <button onClick={() => handleSave("PUBLISHED")} disabled={saving} style={{ fontSize: "12px", padding: "8px 16px", fontWeight: 700, borderRadius: "9px", border: "none", background: "linear-gradient(135deg, #63C7DE, #2C8FAD)", color: "#0A1628", cursor: "pointer", fontFamily: "inherit" }}>
               {saving ? "Saving..." : "Publish \u2192"}
             </button>
           </div>
         </div>
       </header>
 
-      <div style={{ display: "grid", gridTemplateColumns: "220px 1fr 280px", gap: 0, borderTop: "1px solid #E7EAF0", minHeight: "calc(100vh - 54px)", background: "#F8FAFC" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "208px 1fr 272px", gap: 0, borderTop: "1px solid #E7EAF0", minHeight: "calc(100vh - 60px)", background: "#F5F3EC" }}>
         {/* LEFT SIDEBAR */}
         <aside style={{ background: "#fff", borderRight: "1px solid #E7EAF0", padding: "20px 14px" }}>
           <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#9AA3B2", padding: "14px 10px 6px" }}>Create</div>
@@ -411,7 +464,7 @@ export default function ContentStudio() {
         </aside>
 
         {/* CENTER */}
-        <main style={{ padding: "22px 28px", overflowY: "auto" }}>
+        <main style={{ padding: "22px 28px", overflowY: "auto", display: "flex", flexDirection: "column", minHeight: "calc(100vh - 60px)" }}>
           {view === "library" ? (
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
@@ -423,7 +476,7 @@ export default function ContentStudio() {
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   {library.map((item) => (
-                    <div key={item.id} className="card" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: "16px" }}>
+                    <div key={item.id} className="card cs-lib-item" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: "16px" }}>
                       <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: pillarBgs[item.pillar] || "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 700, color: pillarColors[item.pillar] || "#6B7280", flexShrink: 0 }}>
                         {item.format.charAt(0)}
                       </div>
@@ -450,7 +503,7 @@ export default function ContentStudio() {
               )}
             </div>
           ) : (
-            <div>
+            <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
               <div style={{ fontSize: "12.5px", color: "#6B7280", marginBottom: "16px" }}>
                 Content Studio / <b>{editingId ? "Edit Article" : "New Article"}</b>
               </div>
@@ -467,26 +520,77 @@ export default function ContentStudio() {
                   </div>
                 </div>
               ) : (
-                <div className="card" style={{ padding: "28px 32px" }}>
-                  <input type="text" value={content.title} onChange={(e) => setContent({ ...content, title: e.target.value })} placeholder="Article title..." style={{ fontSize: "24px", fontWeight: 800, letterSpacing: "-0.02em", border: "none", outline: "none", width: "100%", fontFamily: "inherit", color: "#111827", marginBottom: "6px", background: "transparent" }} />
-                  <div style={{ fontSize: "12px", color: "#9AA3B2", marginBottom: "20px" }}>
-                    Will appear in the <b style={{ color: pillarColors[content.pillar] }}>{pillarLabels[content.pillar]}</b> hub automatically
-                  </div>
-                  <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", borderRadius: "10px", padding: "6px", background: "#F8FAFC", marginBottom: "20px", border: "1px solid #E7EAF0" }}>
-                    {toolbarButtons.map((t) => (
-                      <button key={t.cmd} onClick={() => insertMarkdown(t.cmd)} style={{ fontSize: "12px", fontWeight: 600, color: "#6B7280", padding: "5px 11px", borderRadius: "7px", background: "#fff", border: "1px solid #E7EAF0", cursor: "pointer", fontFamily: "inherit" }}>{t.label}</button>
-                    ))}
-                    {specialButtons.map((t) => (
-                      <button key={t.cmd} onClick={() => insertMarkdown(t.cmd)} style={{ fontSize: "12px", fontWeight: 600, color: "#2563EB", padding: "5px 11px", borderRadius: "7px", background: "#EFF4FF", border: "1px solid #C7D7FE", cursor: "pointer", fontFamily: "inherit" }}>{t.label}</button>
-                    ))}
-                  </div>
-                  <input type="file" id="image-upload" accept="image/*" style={{ display: "none" }} onChange={handleImageUpload} />
-                  {uploading && (
-                    <div style={{ padding: "12px 16px", background: "#EFF4FF", borderRadius: "8px", marginBottom: "12px", fontSize: "13px", color: "#2563EB", fontWeight: 600 }}>
-                      Uploading image...
+                <div className="card" style={{
+                  padding: "0", display: "flex", flexDirection: "column", flex: 1, minHeight: 0,
+                  overflow: "hidden", position: "relative",
+                }}>
+                  {/* Brand accent bar */}
+                  <div style={{ height: "3px", background: "linear-gradient(90deg, #63C7DE, #7C3AED)", flexShrink: 0 }} />
+
+                  <div style={{ padding: "26px 32px 20px", flexShrink: 0 }}>
+                    <input type="text" value={content.title} onChange={(e) => setContent({ ...content, title: e.target.value })} placeholder="Article title..." style={{ fontSize: "25px", fontWeight: 800, letterSpacing: "-0.02em", border: "none", outline: "none", width: "100%", fontFamily: "'Space Grotesk', inherit", color: "#0E1B33", marginBottom: "6px", background: "transparent" }} />
+                    <div style={{ fontSize: "12px", color: "#9AA3B2", marginBottom: "18px" }}>
+                      Will appear in the <b style={{ color: pillarColors[content.pillar] }}>{pillarLabels[content.pillar]}</b> hub automatically
                     </div>
-                  )}
-                  <textarea id="editor-body" value={content.body} onChange={(e) => setContent({ ...content, body: e.target.value })} placeholder={"Write in markdown...\n\n# Heading\n## Subheading\n**bold** *italic*\n- bullet points\n> blockquote\n\nClick Upload Image or YouTube Embed in toolbar."} style={{ fontSize: "14.5px", color: "#374151", lineHeight: 1.8, border: "none", outline: "none", width: "100%", fontFamily: "inherit", maxWidth: "680px", minHeight: "400px", resize: "vertical", background: "transparent" }} />
+
+                    <div style={{ display: "flex", gap: "5px", flexWrap: "wrap", alignItems: "center" }}>
+                      {toolbarButtons.map((t) => (
+                        <button
+                          key={t.cmd}
+                          onClick={() => insertMarkdown(t.cmd)}
+                          className="cs-toolbar-btn"
+                          style={{ fontSize: "12px", fontWeight: 600, color: "#374151", padding: "6px 12px", borderRadius: "8px", background: "#F8FAFC", border: "1px solid #E7EAF0", cursor: "pointer", fontFamily: "inherit" }}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                      <span style={{ width: "1px", height: "20px", background: "#E7EAF0", margin: "0 4px" }} />
+                      {specialButtons.map((t) => (
+                        <button
+                          key={t.cmd}
+                          onClick={() => insertMarkdown(t.cmd)}
+                          className="cs-toolbar-btn"
+                          style={{ fontSize: "12px", fontWeight: 700, color: "#2C6E8C", padding: "6px 12px", borderRadius: "8px", background: "#EAF7FB", border: "1px solid #BEE6F1", cursor: "pointer", fontFamily: "inherit" }}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <input type="file" id="image-upload" accept="image/*" style={{ display: "none" }} onChange={handleImageUpload} />
+                    {uploading && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 14px", background: "#EAF7FB", borderRadius: "9px", marginTop: "12px", fontSize: "12.5px", color: "#2C6E8C", fontWeight: 600 }}>
+                        <span className="cs-spinner" />
+                        Optimizing &amp; uploading image&hellip;
+                      </div>
+                    )}
+                  </div>
+
+                  <textarea
+                    id="editor-body"
+                    value={content.body}
+                    onChange={(e) => setContent({ ...content, body: e.target.value })}
+                    placeholder={"Write in markdown...\n\n# Heading\n## Subheading\n**bold** *italic*\n- bullet points\n> blockquote\n\nClick Upload Image or YouTube Embed in toolbar."}
+                    style={{
+                      fontSize: "16px", color: "#1F2937", lineHeight: 1.9, border: "none", outline: "none",
+                      width: "100%", fontFamily: "inherit", flex: 1, minHeight: "50vh", resize: "none",
+                      background: "transparent", padding: "4px 32px 24px",
+                    }}
+                  />
+
+                  {/* Live word count / reading time footer */}
+                  <div style={{
+                    flexShrink: 0, display: "flex", justifyContent: "space-between", alignItems: "center",
+                    padding: "10px 32px", borderTop: "1px solid #F0F2F5", background: "#FAFBFC",
+                    fontSize: "11.5px", color: "#9AA3B2",
+                  }}>
+                    <span>
+                      {content.body.trim().split(/\s+/).filter(Boolean).length} words
+                      {"  \u00B7  "}
+                      ~{Math.max(1, Math.round(content.body.trim().split(/\s+/).filter(Boolean).length / 200))} min read
+                    </span>
+                    <span>Markdown supported</span>
+                  </div>
                 </div>
               )}
             </div>
