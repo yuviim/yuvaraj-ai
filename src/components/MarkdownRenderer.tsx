@@ -178,30 +178,6 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
       continue;
     }
 
-    // Diagram placeholder: [diagram:NAME]
-    const diagramMatch = line.trim().match(/^\[diagram:([^\]]+)\]/);
-    if (diagramMatch) {
-      elements.push(
-        <div
-          key={key++}
-          style={{
-            background: "#F8FAFC",
-            border: "2px dashed #E7EAF0",
-            borderRadius: "12px",
-            padding: "32px",
-            textAlign: "center",
-            margin: "20px 0",
-            color: "#9AA3B2",
-          }}
-        >
-          <div style={{ fontSize: "24px", marginBottom: "8px" }}>&#9633;</div>
-          <div style={{ fontSize: "13px", fontWeight: 600 }}>Architecture Diagram: {diagramMatch[1]}</div>
-          <div style={{ fontSize: "11px", marginTop: "4px" }}>Diagram will render here</div>
-        </div>
-      );
-      continue;
-    }
-
     // Empty line
     if (line.trim().length === 0) {
       elements.push(<div key={key++} style={{ height: "8px" }} />);

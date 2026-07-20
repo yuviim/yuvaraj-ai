@@ -49,13 +49,19 @@ function extractYouTubeId(url: string): string | null {
 
 // Resize + compress an image client-side before upload, so files always match
 // the site's actual display width instead of uploading raw, oversized screenshots.
-function resizeImage(file: File, maxWidth = 1600, quality = 0.85): Promise<File> {
+function resizeImage(file: File, maxWidth = 1600, quality = 0.9): Promise<File> {
   return new Promise((resolve) => {
     // Skip resizing for already-small files or non-standard image types (e.g. SVG)
     if (file.type === "image/svg+xml" || file.size < 200 * 1024) {
       resolve(file);
       return;
     }
+    // Diagrams and screenshots have fine text and thin lines — JPEG's lossy
+    // compression visibly softens that. Only photos (already JPEG) get re-encoded
+    // as JPEG; everything else (PNG screenshots, diagrams) stays lossless PNG.
+    const outputType = file.type === "image/jpeg" || file.type === "image/jpg" ? "image/jpeg" : "image/png";
+    const outputExt = outputType === "image/jpeg" ? ".jpg" : ".png";
+
     const img = new window.Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
@@ -72,11 +78,11 @@ function resizeImage(file: File, maxWidth = 1600, quality = 0.85): Promise<File>
       canvas.toBlob(
         (blob) => {
           if (!blob) { resolve(file); return; }
-          const newName = file.name.replace(/\.\w+$/, "") + ".jpg";
-          resolve(new File([blob], newName, { type: "image/jpeg" }));
+          const newName = file.name.replace(/\.\w+$/, "") + outputExt;
+          resolve(new File([blob], newName, { type: outputType }));
         },
-        "image/jpeg",
-        quality
+        outputType,
+        outputType === "image/jpeg" ? quality : undefined
       );
     };
     img.onerror = () => resolve(file);
@@ -341,11 +347,6 @@ export default function ContentStudio() {
         }
         break;
       }
-      case "diagram": {
-        const dName = window.prompt("Diagram name:", "architecture-overview") || "diagram";
-        insertAtCursor("\n[diagram:" + dName + "]\n");
-        break;
-      }
     }
   };
 
@@ -359,7 +360,6 @@ export default function ContentStudio() {
 
   const specialButtons = [
     { label: "\u25B6 YouTube Embed", cmd: "youtube" },
-    { label: "\u25E8 Diagram", cmd: "diagram" },
   ];
 
   const renderPreviewLine = (line: string, i: number) => {
@@ -384,15 +384,6 @@ export default function ContentStudio() {
         <div key={i} style={{ margin: "16px 0", textAlign: "center" }}>
           <img src={imgMatch[2]} alt={imgMatch[1]} style={{ width: "100%", maxWidth: "620px", borderRadius: "10px", border: "1px solid #E7EAF0" }} />
           {imgMatch[1] && <div style={{ fontSize: "12px", color: "#9AA3B2", marginTop: "6px", textAlign: "center" }}>{imgMatch[1]}</div>}
-        </div>
-      );
-    }
-
-    const diagMatch = line.trim().match(/^\[diagram:([^\]]+)\]/);
-    if (diagMatch) {
-      return (
-        <div key={i} style={{ background: "#F8FAFC", border: "2px dashed #E7EAF0", borderRadius: "12px", padding: "24px", textAlign: "center", margin: "16px 0", color: "#9AA3B2" }}>
-          <div style={{ fontSize: "13px", fontWeight: 600 }}>Architecture Diagram: {diagMatch[1]}</div>
         </div>
       );
     }
