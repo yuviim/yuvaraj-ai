@@ -27,6 +27,12 @@ interface ContentItem {
   coverImage: string | null;
 }
 
+interface ToastMsg {
+  id: number;
+  text: string;
+  type: "success" | "error" | "info";
+}
+
 function extractYouTubeId(url: string): string | null {
   const patterns = [
     /youtube\.com\/watch\?v=([^&\s]+)/,
@@ -96,6 +102,16 @@ export default function ContentStudio() {
     coverImage: "",
   });
 
+  const [toasts, setToasts] = useState<ToastMsg[]>([]);
+  const showToast = useCallback((text: string, type: ToastMsg["type"] = "success") => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, text, type }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3200);
+  }, []);
+
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [isDraggingImage, setIsDraggingImage] = useState(false);
+
   const fetchLibrary = useCallback(async () => {
     try {
       const res = await fetch("/api/content");
@@ -107,7 +123,7 @@ export default function ContentStudio() {
 
   const handleSave = async (publishStatus: string) => {
     if (content.title.trim().length === 0) {
-      if (typeof window !== "undefined") window.alert("Title is required");
+      showToast("Title is required", "error");
       return;
     }
     setSaving(true);
@@ -127,16 +143,16 @@ export default function ContentStudio() {
         body: JSON.stringify(payload),
       });
       if (res.ok) {
-        if (typeof window !== "undefined") window.alert(publishStatus === "PUBLISHED" ? "Published!" : "Saved as draft!");
+        showToast(publishStatus === "PUBLISHED" ? "Published successfully" : "Saved as draft", "success");
         setContent({ title: "", body: "", pillar: "DP", format: "ARTICLE", status: "DRAFT", publishDate: new Date().toISOString().split("T")[0], coverImage: "" });
         setEditingId(null);
         fetchLibrary();
       } else {
         const err = await res.json();
-        if (typeof window !== "undefined") window.alert("Error: " + (err.error || "Unknown"));
+        showToast("Error: " + (err.error || "Unknown"), "error");
       }
     } catch (e) {
-      if (typeof window !== "undefined") window.alert("Error: " + e);
+      showToast("Error: " + e, "error");
     }
     setSaving(false);
   };
@@ -157,13 +173,16 @@ export default function ContentStudio() {
   };
 
   const handleDelete = async (id: string) => {
-    if (typeof window !== "undefined" && window.confirm("Delete this content?") === false) return;
     try {
       const res = await fetch("/api/content/" + id, { method: "DELETE" });
-      if (res.ok) fetchLibrary();
+      if (res.ok) {
+        fetchLibrary();
+        showToast("Deleted", "info");
+      }
     } catch (e) {
-      if (typeof window !== "undefined") window.alert("Error: " + e);
+      showToast("Error: " + e, "error");
     }
+    setConfirmDeleteId(null);
   };
 
   const handleNew = () => {
@@ -186,9 +205,7 @@ export default function ContentStudio() {
     });
   }, []);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const uploadAndInsertImage = async (file: File) => {
     setUploading(true);
     try {
       const resized = await resizeImage(file);
@@ -204,12 +221,37 @@ export default function ContentStudio() {
         insertAtCursor("\n![" + altText + "](" + data.url + ")\n");
       } else {
         const err = await res.json();
-        if (typeof window !== "undefined") window.alert("Upload failed: " + (err.error || "Unknown"));
+        showToast("Upload failed: " + (err.error || "Unknown"), "error");
       }
     } catch (err) {
-      if (typeof window !== "undefined") window.alert("Upload failed: " + err);
+      showToast("Upload failed: " + err, "error");
     }
     setUploading(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer.types.includes("Files")) setIsDraggingImage(true);
+  };
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingImage(false);
+  };
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingImage(false);
+    const file = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith("image/"));
+    if (!file) {
+      showToast("Drop an image file to upload", "error");
+      return;
+    }
+    await uploadAndInsertImage(file);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadAndInsertImage(file);
     e.target.value = "";
   };
 
@@ -229,10 +271,10 @@ export default function ContentStudio() {
         setContent((prev) => ({ ...prev, coverImage: data.url }));
       } else {
         const err = await res.json();
-        if (typeof window !== "undefined") window.alert("Cover upload failed: " + (err.error || "Unknown"));
+        showToast("Cover upload failed: " + (err.error || "Unknown"), "error");
       }
     } catch (err) {
-      if (typeof window !== "undefined") window.alert("Cover upload failed: " + err);
+      showToast("Cover upload failed: " + err, "error");
     }
     setCoverUploading(false);
     e.target.value = "";
@@ -294,7 +336,7 @@ export default function ContentStudio() {
           if (videoId) {
             insertAtCursor("\nhttps://www.youtube.com/watch?v=" + videoId + "\n");
           } else {
-            window.alert("Could not extract YouTube video ID.");
+            showToast("Could not extract YouTube video ID.", "error");
           }
         }
         break;
@@ -416,6 +458,9 @@ export default function ContentStudio() {
           @keyframes cs-spin { to { transform: rotate(360deg); } }
           .cs-lib-item { transition: transform .15s, box-shadow .15s; }
           .cs-lib-item:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(14,27,51,.08); }
+          @keyframes cs-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes cs-modal-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
+          @keyframes cs-overlay-in { from { opacity: 0; } to { opacity: 1; } }
         `}} />
         <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between", height: "60px" }}>
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -442,11 +487,23 @@ export default function ContentStudio() {
         </div>
       </header>
 
-      <div style={{ display: "grid", gridTemplateColumns: "208px 1fr 272px", gap: 0, borderTop: "1px solid #E7EAF0", minHeight: "calc(100vh - 60px)", background: "#F5F3EC" }}>
+      <div style={{
+        display: "grid", gridTemplateColumns: "208px 1fr 272px", gap: 0,
+        borderTop: "1px solid #E7EAF0", minHeight: "calc(100vh - 60px)",
+        background: "#F5F3EC",
+        backgroundImage: "radial-gradient(rgba(14,27,51,.05) 1px, transparent 1px)",
+        backgroundSize: "22px 22px",
+      }}>
         {/* LEFT SIDEBAR */}
         <aside style={{ background: "#fff", borderRight: "1px solid #E7EAF0", padding: "20px 14px" }}>
           <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#9AA3B2", padding: "14px 10px 6px" }}>Create</div>
-          <div onClick={handleNew} style={{ display: "flex", alignItems: "center", gap: "9px", padding: "8px 10px", borderRadius: "8px", fontSize: "13px", fontWeight: 600, color: view === "editor" && !editingId ? "#fff" : "#6B7280", background: view === "editor" && !editingId ? "#2563EB" : "transparent", cursor: "pointer", marginBottom: "2px" }}>
+          <div onClick={handleNew} style={{
+            display: "flex", alignItems: "center", gap: "9px", padding: "8px 10px", borderRadius: "8px",
+            fontSize: "13px", fontWeight: 600, cursor: "pointer", marginBottom: "2px",
+            transition: "background .3s ease, color .3s ease",
+            color: view === "editor" && !editingId ? "#fff" : "#6B7280",
+            background: view === "editor" && !editingId ? pillarColors[content.pillar] : "transparent",
+          }}>
             &#9998; New Article
           </div>
           <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#9AA3B2", padding: "20px 10px 6px" }}>Library</div>
@@ -472,13 +529,21 @@ export default function ContentStudio() {
                 <button onClick={handleNew} className="btn btn-pri" style={{ fontSize: "12px", padding: "8px 16px" }}>+ New Article</button>
               </div>
               {library.length === 0 ? (
-                <p style={{ color: "#6B7280", textAlign: "center", padding: "40px 0" }}>No content yet.</p>
+                <div style={{ textAlign: "center", padding: "64px 0", color: "#9AA3B2" }}>
+                  <div style={{ fontSize: "34px", marginBottom: "14px", opacity: 0.4 }}>&#9998;</div>
+                  <div style={{ fontWeight: 700, fontSize: "15px", color: "#374151", marginBottom: "6px" }}>Nothing published yet</div>
+                  <div style={{ fontSize: "13px" }}>Start your first article from the left sidebar.</div>
+                </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   {library.map((item) => (
                     <div key={item.id} className="card cs-lib-item" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: "16px" }}>
-                      <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: pillarBgs[item.pillar] || "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 700, color: pillarColors[item.pillar] || "#6B7280", flexShrink: 0 }}>
-                        {item.format.charAt(0)}
+                      <div style={{ width: "52px", height: "52px", borderRadius: "10px", background: pillarBgs[item.pillar] || "#F3F4F6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 700, color: pillarColors[item.pillar] || "#6B7280", flexShrink: 0, overflow: "hidden" }}>
+                        {item.coverImage ? (
+                          <img src={item.coverImage} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        ) : (
+                          item.format.charAt(0)
+                        )}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: "14px", fontWeight: 700, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</div>
@@ -495,7 +560,7 @@ export default function ContentStudio() {
                       <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
                         <a href={"/" + item.slug} target="_blank" rel="noopener noreferrer" style={{ fontSize: "12px", fontWeight: 600, color: "#6B7280", padding: "6px 12px", borderRadius: "8px", border: "1px solid #E7EAF0", background: "#fff", textDecoration: "none" }}>View</a>
                         <button onClick={() => handleEdit(item)} style={{ fontSize: "12px", fontWeight: 600, color: "#2563EB", padding: "6px 12px", borderRadius: "8px", border: "1px solid #C7D7FE", background: "#EFF4FF", cursor: "pointer", fontFamily: "inherit" }}>Edit</button>
-                        <button onClick={() => handleDelete(item.id)} style={{ fontSize: "12px", fontWeight: 600, color: "#EF4444", padding: "6px 12px", borderRadius: "8px", border: "1px solid #FECACA", background: "#FEF2F2", cursor: "pointer", fontFamily: "inherit" }}>Delete</button>
+                        <button onClick={() => setConfirmDeleteId(item.id)} style={{ fontSize: "12px", fontWeight: 600, color: "#EF4444", padding: "6px 12px", borderRadius: "8px", border: "1px solid #FECACA", background: "#FEF2F2", cursor: "pointer", fontFamily: "inherit" }}>Delete</button>
                       </div>
                     </div>
                   ))}
@@ -524,8 +589,11 @@ export default function ContentStudio() {
                   padding: "0", display: "flex", flexDirection: "column", flex: 1, minHeight: 0,
                   overflow: "hidden", position: "relative",
                 }}>
-                  {/* Brand accent bar */}
-                  <div style={{ height: "3px", background: "linear-gradient(90deg, #63C7DE, #7C3AED)", flexShrink: 0 }} />
+                  {/* Brand accent bar — tints toward the selected pillar's color */}
+                  <div style={{
+                    height: "3px", flexShrink: 0, transition: "background .35s ease",
+                    background: `linear-gradient(90deg, ${pillarColors[content.pillar]}, #63C7DE)`,
+                  }} />
 
                   <div style={{ padding: "26px 32px 20px", flexShrink: 0 }}>
                     <input type="text" value={content.title} onChange={(e) => setContent({ ...content, title: e.target.value })} placeholder="Article title..." style={{ fontSize: "25px", fontWeight: 800, letterSpacing: "-0.02em", border: "none", outline: "none", width: "100%", fontFamily: "'Space Grotesk', inherit", color: "#0E1B33", marginBottom: "6px", background: "transparent" }} />
@@ -550,7 +618,12 @@ export default function ContentStudio() {
                           key={t.cmd}
                           onClick={() => insertMarkdown(t.cmd)}
                           className="cs-toolbar-btn"
-                          style={{ fontSize: "12px", fontWeight: 700, color: "#2C6E8C", padding: "6px 12px", borderRadius: "8px", background: "#EAF7FB", border: "1px solid #BEE6F1", cursor: "pointer", fontFamily: "inherit" }}
+                          style={{
+                            fontSize: "12px", fontWeight: 700, color: pillarColors[content.pillar],
+                            padding: "6px 12px", borderRadius: "8px", background: pillarBgs[content.pillar],
+                            border: `1px solid ${pillarColors[content.pillar]}40`, cursor: "pointer", fontFamily: "inherit",
+                            transition: "background .3s ease, color .3s ease, border-color .3s ease",
+                          }}
                         >
                           {t.label}
                         </button>
@@ -566,17 +639,39 @@ export default function ContentStudio() {
                     )}
                   </div>
 
-                  <textarea
-                    id="editor-body"
-                    value={content.body}
-                    onChange={(e) => setContent({ ...content, body: e.target.value })}
-                    placeholder={"Write in markdown...\n\n# Heading\n## Subheading\n**bold** *italic*\n- bullet points\n> blockquote\n\nClick Upload Image or YouTube Embed in toolbar."}
-                    style={{
-                      fontSize: "16px", color: "#1F2937", lineHeight: 1.9, border: "none", outline: "none",
-                      width: "100%", fontFamily: "inherit", flex: 1, minHeight: "50vh", resize: "none",
-                      background: "transparent", padding: "4px 32px 24px",
-                    }}
-                  />
+                  {/* Drop zone wraps the textarea — drag an image straight onto it */}
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}
+                  >
+                    {isDraggingImage && (
+                      <div style={{
+                        position: "absolute", inset: "8px", zIndex: 5, borderRadius: "12px",
+                        border: `2px dashed ${pillarColors[content.pillar]}`,
+                        background: pillarBgs[content.pillar], opacity: 0.92,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        pointerEvents: "none",
+                      }}>
+                        <div style={{ textAlign: "center", color: pillarColors[content.pillar] }}>
+                          <div style={{ fontSize: "28px", marginBottom: "6px" }}>&#128247;</div>
+                          <div style={{ fontSize: "14px", fontWeight: 700 }}>Drop image to upload</div>
+                        </div>
+                      </div>
+                    )}
+                    <textarea
+                      id="editor-body"
+                      value={content.body}
+                      onChange={(e) => setContent({ ...content, body: e.target.value })}
+                      placeholder={"Write in markdown...\n\n# Heading\n## Subheading\n**bold** *italic*\n- bullet points\n> blockquote\n\nDrag an image in, or click Upload Image / YouTube Embed in the toolbar."}
+                      style={{
+                        fontSize: "16px", color: "#1F2937", lineHeight: 1.9, border: "none", outline: "none",
+                        width: "100%", fontFamily: "inherit", flex: 1, minHeight: "50vh", resize: "none",
+                        background: "transparent", padding: "4px 32px 24px",
+                      }}
+                    />
+                  </div>
 
                   {/* Live word count / reading time footer */}
                   <div style={{
@@ -711,6 +806,64 @@ export default function ContentStudio() {
           )}
         </aside>
       </div>
+
+      {/* Toast notifications — replaces native browser alerts */}
+      <div style={{ position: "fixed", bottom: "22px", right: "22px", zIndex: 200, display: "flex", flexDirection: "column", gap: "8px" }}>
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            style={{
+              animation: "cs-toast-in .2s ease-out",
+              padding: "12px 18px", borderRadius: "10px", fontSize: "13px", fontWeight: 600,
+              color: t.type === "error" ? "#991B1B" : t.type === "info" ? "#374151" : "#065F46",
+              background: t.type === "error" ? "#FEF2F2" : t.type === "info" ? "#F3F4F6" : "#ECFDF5",
+              border: "1px solid " + (t.type === "error" ? "#FECACA" : t.type === "info" ? "#E5E7EB" : "#A7F3D0"),
+              boxShadow: "0 8px 24px rgba(14,27,51,.12)", maxWidth: "320px",
+            }}
+          >
+            {t.text}
+          </div>
+        ))}
+      </div>
+
+      {/* Delete confirmation modal — replaces native browser confirm */}
+      {confirmDeleteId && (
+        <div
+          style={{
+            position: "fixed", inset: 0, background: "rgba(14,27,51,.5)", zIndex: 300,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            animation: "cs-overlay-in .15s ease-out",
+          }}
+          onClick={() => setConfirmDeleteId(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#fff", borderRadius: "14px", padding: "26px", width: "340px",
+              boxShadow: "0 20px 50px rgba(14,27,51,.3)", animation: "cs-modal-in .18s ease-out",
+            }}
+          >
+            <div style={{ fontSize: "16px", fontWeight: 800, color: "#111827", marginBottom: "8px" }}>Delete this content?</div>
+            <div style={{ fontSize: "13px", color: "#6B7280", marginBottom: "20px", lineHeight: 1.5 }}>
+              This can&rsquo;t be undone. The article, video, or note will be permanently removed from the library.
+            </div>
+            <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                style={{ fontSize: "12.5px", fontWeight: 600, color: "#374151", padding: "8px 16px", borderRadius: "8px", border: "1px solid #E7EAF0", background: "#fff", cursor: "pointer", fontFamily: "inherit" }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(confirmDeleteId)}
+                style={{ fontSize: "12.5px", fontWeight: 700, color: "#fff", padding: "8px 16px", borderRadius: "8px", border: "none", background: "#DC2626", cursor: "pointer", fontFamily: "inherit" }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
