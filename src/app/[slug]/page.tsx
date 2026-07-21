@@ -88,7 +88,7 @@ export default async function ArticlePage({ params }: { params: { slug: string }
         {item.tags ? (
           <div style={{ marginTop: "40px", paddingTop: "20px", borderTop: "1px solid #E7EAF0" }}>
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-              {item.tags.split(",").map((tag) => (
+              {item.tags.split(",").map((tag: string) => (
                 <span key={tag} style={{ fontSize: "12px", fontWeight: 600, padding: "4px 12px", borderRadius: "99px", background: "#F8FAFC", border: "1px solid #E7EAF0", color: "#374151" }}>
                   {tag.trim()}
                 </span>

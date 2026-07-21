@@ -47,6 +47,20 @@ export function generateStaticParams() {
   return validPillars.map((pillar) => ({ pillar: pillar.toLowerCase() }));
 }
 
+interface HubContentItem {
+  id: string;
+  title: string;
+  slug: string;
+  subtitle?: string | null;
+  coverImage?: string | null;
+  pillar: string;
+  source: string;
+  format: string;
+  body?: string | null;
+  readingTimeMin?: number | null;
+  publishedAt?: Date | string | null;
+}
+
 export default async function HubPage({ params }: { params: { pillar: string } }) {
   const pillar = params.pillar.toUpperCase();
 
@@ -105,7 +119,7 @@ export default async function HubPage({ params }: { params: { pillar: string } }
           <div style={{ marginBottom: "48px" }}>
             <h2 style={{ fontSize: "20px", fontWeight: 800, marginBottom: "18px" }}>Articles</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
-              {articles.map((item) => (
+              {articles.map((item: HubContentItem) => (
                 <ContentCard key={item.id} item={item} />
               ))}
             </div>
@@ -117,7 +131,7 @@ export default async function HubPage({ params }: { params: { pillar: string } }
           <div style={{ marginBottom: "48px" }}>
             <h2 style={{ fontSize: "20px", fontWeight: 800, marginBottom: "18px" }}>Videos</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "16px" }}>
-              {videos.map((video) => {
+              {videos.map((video: HubContentItem) => {
                 const ytMatch = (video.body || "").match(/youtube\.com\/watch\?v=([^&\s]+)/) || (video.body || "").match(/youtu\.be\/([^?\s]+)/);
                 const ytId = ytMatch ? ytMatch[1] : null;
                 const thumb = ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : null;
@@ -150,7 +164,7 @@ export default async function HubPage({ params }: { params: { pillar: string } }
           <div style={{ marginBottom: "48px" }}>
             <h2 style={{ fontSize: "20px", fontWeight: 800, marginBottom: "18px" }}>Notes &amp; Diagrams</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
-              {others.map((item) => (
+              {others.map((item: HubContentItem) => (
                 <ContentCard key={item.id} item={item} />
               ))}
             </div>

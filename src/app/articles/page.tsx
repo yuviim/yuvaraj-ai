@@ -57,8 +57,8 @@ export default async function ArticlesPage({
     _count: true,
   });
   const countByPillar: Record<string, number> = {};
-  allCounts.forEach((c) => { countByPillar[c.pillar] = c._count; });
-  const totalCount = allCounts.reduce((sum, c) => sum + c._count, 0);
+  allCounts.forEach((c: { pillar: string; _count: number }) => { countByPillar[c.pillar] = c._count; });
+  const totalCount = allCounts.reduce((sum: number, c: { _count: number }) => sum + c._count, 0);
 
   return (
     <div>
