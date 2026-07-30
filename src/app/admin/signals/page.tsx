@@ -29,6 +29,11 @@ export default function SignalAdminPage() {
   const [drafts, setDrafts] = useState<Record<string, { category: string; whyMatters: string }>>({});
   const [syncing, setSyncing] = useState(false);
   const [toasts, setToasts] = useState<ToastMsg[]>([]);
+  const [collapsedSources, setCollapsedSources] = useState<Record<string, boolean>>({});
+
+  const toggleSource = (source: string) => {
+    setCollapsedSources((prev) => ({ ...prev, [source]: !prev[source] }));
+  };
 
   const showToast = useCallback((text: string, type: ToastMsg["type"] = "success") => {
     const id = Date.now() + Math.random();
@@ -141,6 +146,14 @@ export default function SignalAdminPage() {
 
   const list = tab === "pending" ? pending : published;
 
+  // Group by source so a large pending queue reads as sections
+  // (AWS, OpenAI, etc.) instead of one long undifferentiated list.
+  const grouped = list.reduce<Record<string, SignalItem[]>>((acc, item) => {
+    (acc[item.source] = acc[item.source] || []).push(item);
+    return acc;
+  }, {});
+  const sourceOrder = Object.keys(grouped).sort((a, b) => grouped[b].length - grouped[a].length);
+
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3EC" }}>
       <header style={{ background: "linear-gradient(135deg, #0E1B33, #142943)", padding: "18px 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -189,94 +202,114 @@ export default function SignalAdminPage() {
           </div>
         )}
 
-        {list.map((item) => {
-          const draft = drafts[item.id] || { category: "", whyMatters: "" };
+        {sourceOrder.map((source) => {
+          const items = grouped[source];
+          const collapsed = !!collapsedSources[source];
           return (
-            <div key={item.id} style={{ background: "#fff", borderRadius: "12px", border: "1px solid #E7EAF0", padding: "18px 20px", marginBottom: "14px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: "12px", marginBottom: "8px" }}>
-                <div>
-                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#2563EB", textTransform: "uppercase", letterSpacing: "0.05em" }}>{item.source}</span>
-                  {item.feedPublishedAt && (
-                    <span style={{ fontSize: "11px", color: "#9AA3B2", marginLeft: "8px" }}>
-                      {new Date(item.feedPublishedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: "15px", fontWeight: 700, color: "#111827", lineHeight: 1.4, display: "block", marginBottom: "6px" }}>
-                {item.title}
-              </a>
-              {item.summary && (
-                <p style={{ fontSize: "12.5px", color: "#6B7280", lineHeight: 1.6, marginBottom: "14px" }}>{item.summary}</p>
-              )}
+            <div key={source} style={{ marginBottom: "22px" }}>
+              <button
+                onClick={() => toggleSource(source)}
+                style={{
+                  display: "flex", alignItems: "center", gap: "8px", width: "100%",
+                  background: "none", border: "none", cursor: "pointer", padding: "0 0 10px 0",
+                  textAlign: "left",
+                }}
+              >
+                <span style={{ fontSize: "11px", color: "#9AA3B2", transform: collapsed ? "rotate(-90deg)" : "none", display: "inline-block", transition: "transform .15s" }}>▾</span>
+                <span style={{ fontSize: "13px", fontWeight: 700, color: "#0E1B33", textTransform: "uppercase", letterSpacing: "0.05em" }}>{source}</span>
+                <span style={{ fontSize: "11.5px", fontWeight: 600, color: "#6B7280", background: "#EDEEF2", borderRadius: "99px", padding: "2px 9px" }}>{items.length}</span>
+              </button>
 
-              {tab === "pending" ? (
-                <>
-                  <div style={{ display: "flex", gap: "6px", marginBottom: "10px", flexWrap: "wrap" }}>
-                    <button
-                      onClick={() => updateDraft(item.id, "category", "")}
-                      style={{
-                        fontSize: "11.5px", fontWeight: 600, padding: "5px 12px", borderRadius: "99px",
-                        border: draft.category === "" ? "1px solid #111827" : "1px solid #E7EAF0",
-                        background: draft.category === "" ? "#111827" : "#fff",
-                        color: draft.category === "" ? "#fff" : "#6B7280", cursor: "pointer",
-                      }}
-                    >
-                      No tag
-                    </button>
-                    {SIGNAL_CATEGORIES.map((cat) => (
-                      <button
-                        key={cat.value}
-                        onClick={() => updateDraft(item.id, "category", cat.value)}
-                        style={{
-                          fontSize: "11.5px", fontWeight: 600, padding: "5px 12px", borderRadius: "99px",
-                          border: draft.category === cat.value ? `1px solid ${cat.color}` : "1px solid #E7EAF0",
-                          background: draft.category === cat.value ? cat.bg : "#fff",
-                          color: draft.category === cat.value ? cat.color : "#6B7280", cursor: "pointer",
-                        }}
-                      >
-                        {cat.label}
-                      </button>
-                    ))}
+              {!collapsed && items.map((item) => {
+                const draft = drafts[item.id] || { category: "", whyMatters: "" };
+                return (
+                  <div key={item.id} style={{ background: "#fff", borderRadius: "12px", border: "1px solid #E7EAF0", padding: "18px 20px", marginBottom: "14px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: "12px", marginBottom: "8px" }}>
+                      <div>
+                        {item.feedPublishedAt && (
+                          <span style={{ fontSize: "11px", color: "#9AA3B2" }}>
+                            {new Date(item.feedPublishedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: "15px", fontWeight: 700, color: "#111827", lineHeight: 1.4, display: "block", marginBottom: "6px" }}>
+                      {item.title}
+                    </a>
+                    {item.summary && (
+                      <p style={{ fontSize: "12.5px", color: "#6B7280", lineHeight: 1.6, marginBottom: "14px" }}>{item.summary}</p>
+                    )}
+
+                    {tab === "pending" ? (
+                      <>
+                        <div style={{ display: "flex", gap: "6px", marginBottom: "10px", flexWrap: "wrap" }}>
+                          <button
+                            onClick={() => updateDraft(item.id, "category", "")}
+                            style={{
+                              fontSize: "11.5px", fontWeight: 600, padding: "5px 12px", borderRadius: "99px",
+                              border: draft.category === "" ? "1px solid #111827" : "1px solid #E7EAF0",
+                              background: draft.category === "" ? "#111827" : "#fff",
+                              color: draft.category === "" ? "#fff" : "#6B7280", cursor: "pointer",
+                            }}
+                          >
+                            No tag
+                          </button>
+                          {SIGNAL_CATEGORIES.map((cat) => (
+                            <button
+                              key={cat.value}
+                              onClick={() => updateDraft(item.id, "category", cat.value)}
+                              style={{
+                                fontSize: "11.5px", fontWeight: 600, padding: "5px 12px", borderRadius: "99px",
+                                border: draft.category === cat.value ? `1px solid ${cat.color}` : "1px solid #E7EAF0",
+                                background: draft.category === cat.value ? cat.bg : "#fff",
+                                color: draft.category === cat.value ? cat.color : "#6B7280", cursor: "pointer",
+                              }}
+                            >
+                              {cat.label}
+                            </button>
+                          ))}
+                        </div>
+                        <textarea
+                          value={draft.whyMatters}
+                          onChange={(e) => updateDraft(item.id, "whyMatters", e.target.value)}
+                          placeholder="Why this matters (optional, one line)..."
+                          style={{
+                            width: "100%", fontSize: "13px", padding: "9px 12px", borderRadius: "8px",
+                            border: "1px solid #E7EAF0", fontFamily: "inherit", resize: "vertical", minHeight: "44px", marginBottom: "10px",
+                          }}
+                        />
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <button
+                            onClick={() => handlePublish(item.id)}
+                            style={{ fontSize: "12.5px", fontWeight: 700, padding: "7px 16px", borderRadius: "8px", border: "none", background: "#0E1B33", color: "#fff", cursor: "pointer" }}
+                          >
+                            Publish
+                          </button>
+                          <button
+                            onClick={() => handleDiscard(item.id)}
+                            style={{ fontSize: "12.5px", fontWeight: 600, padding: "7px 16px", borderRadius: "8px", border: "1px solid #FECACA", background: "#FEF2F2", color: "#EF4444", cursor: "pointer" }}
+                          >
+                            Discard
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px" }}>
+                        <span style={{ fontSize: "11.5px", color: "#9AA3B2" }}>
+                          {item.category ? SIGNAL_CATEGORIES.find((c) => c.value === item.category)?.label : "No tag"}
+                          {item.whyMatters ? " — " + item.whyMatters : ""}
+                        </span>
+                        <button
+                          onClick={() => handleUnpublish(item.id)}
+                          style={{ fontSize: "11.5px", fontWeight: 600, padding: "5px 12px", borderRadius: "7px", border: "1px solid #E7EAF0", background: "#fff", color: "#6B7280", cursor: "pointer" }}
+                        >
+                          Unpublish
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <textarea
-                    value={draft.whyMatters}
-                    onChange={(e) => updateDraft(item.id, "whyMatters", e.target.value)}
-                    placeholder="Why this matters (optional, one line)..."
-                    style={{
-                      width: "100%", fontSize: "13px", padding: "9px 12px", borderRadius: "8px",
-                      border: "1px solid #E7EAF0", fontFamily: "inherit", resize: "vertical", minHeight: "44px", marginBottom: "10px",
-                    }}
-                  />
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    <button
-                      onClick={() => handlePublish(item.id)}
-                      style={{ fontSize: "12.5px", fontWeight: 700, padding: "7px 16px", borderRadius: "8px", border: "none", background: "#0E1B33", color: "#fff", cursor: "pointer" }}
-                    >
-                      Publish
-                    </button>
-                    <button
-                      onClick={() => handleDiscard(item.id)}
-                      style={{ fontSize: "12.5px", fontWeight: 600, padding: "7px 16px", borderRadius: "8px", border: "1px solid #FECACA", background: "#FEF2F2", color: "#EF4444", cursor: "pointer" }}
-                    >
-                      Discard
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px" }}>
-                  <span style={{ fontSize: "11.5px", color: "#9AA3B2" }}>
-                    {item.category ? SIGNAL_CATEGORIES.find((c) => c.value === item.category)?.label : "No tag"}
-                    {item.whyMatters ? " — " + item.whyMatters : ""}
-                  </span>
-                  <button
-                    onClick={() => handleUnpublish(item.id)}
-                    style={{ fontSize: "11.5px", fontWeight: 600, padding: "5px 12px", borderRadius: "7px", border: "1px solid #E7EAF0", background: "#fff", color: "#6B7280", cursor: "pointer" }}
-                  >
-                    Unpublish
-                  </button>
-                </div>
-              )}
+                );
+              })}
             </div>
           );
         })}

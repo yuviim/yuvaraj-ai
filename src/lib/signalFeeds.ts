@@ -1,6 +1,6 @@
 // Verified RSS sources for the AI signal radar.
-// Anthropic has no official RSS feed — deliberately excluded from
-// auto-ingestion rather than scraping their site. Add manually if needed.
+// Anthropic and Perplexity have no official RSS feed — deliberately excluded
+// from auto-ingestion rather than scraping their site. Add manually if needed.
 
 export interface SignalFeedSource {
   source: string;
@@ -10,9 +10,9 @@ export interface SignalFeedSource {
 export const SIGNAL_FEEDS: SignalFeedSource[] = [
   { source: "OpenAI", url: "https://openai.com/news/rss.xml" },
   { source: "AWS", url: "https://aws.amazon.com/blogs/machine-learning/feed/" },
-  { source: "Databricks", url: "https://www.databricks.com/feed" },
-  { source: "LangChain", url: "https://blog.langchain.dev/rss/" },
-  { source: "arXiv", url: "https://export.arxiv.org/rss/cs.AI" },
+  { source: "Google Cloud", url: "https://cloud.google.com/blog/products/ai-machine-learning/rss" },
+  { source: "Azure", url: "https://azure.microsoft.com/en-us/blog/feed/" },
+  { source: "Snowflake", url: "https://www.snowflake.com/en/blog/feed/" },
 ];
 
 // Categories for curated signal items. NEXUSIQ is only for direct, specific
