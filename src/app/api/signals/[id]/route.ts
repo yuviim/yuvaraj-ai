@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 
 function isAuthorized(request: NextRequest): boolean {
@@ -27,6 +28,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     data,
   });
 
+  // Publishing/unpublishing changes what /radar shows — bust the
+  // ISR cache immediately instead of waiting up to 5 minutes.
+  if (body.status !== undefined) revalidatePath("/radar");
+
   return NextResponse.json(updated);
 }
 
@@ -35,5 +40,6 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   await prisma.signalItem.delete({ where: { id: params.id } });
+  revalidatePath("/radar");
   return NextResponse.json({ deleted: true });
 }
