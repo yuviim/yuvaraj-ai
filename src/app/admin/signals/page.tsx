@@ -144,6 +144,26 @@ export default function SignalAdminPage() {
     }
   };
 
+  const handleDiscardSection = async (source: string, items: SignalItem[]) => {
+    if (!window.confirm(`Discard all ${items.length} pending items from ${source}?`)) return;
+    const pw = getPassword();
+    let failed = false;
+    for (const item of items) {
+      const res = await fetch("/api/signals/" + item.id, {
+        method: "DELETE",
+        headers: { Authorization: "Bearer " + pw },
+      });
+      if (!res.ok) failed = true;
+    }
+    if (failed) {
+      sessionStorage.removeItem("signal_admin_pw");
+      showToast("Some items failed — check password", "error");
+    } else {
+      showToast(`Discarded all ${items.length} from ${source}`, "success");
+    }
+    fetchItems();
+  };
+
   const list = tab === "pending" ? pending : published;
 
   // Group by source so a large pending queue reads as sections
@@ -219,6 +239,16 @@ export default function SignalAdminPage() {
                 <span style={{ fontSize: "13px", fontWeight: 700, color: "#0E1B33", textTransform: "uppercase", letterSpacing: "0.05em" }}>{source}</span>
                 <span style={{ fontSize: "11.5px", fontWeight: 600, color: "#6B7280", background: "#EDEEF2", borderRadius: "99px", padding: "2px 9px" }}>{items.length}</span>
               </button>
+              {tab === "pending" && (
+                <div style={{ marginBottom: "10px" }}>
+                  <button
+                    onClick={() => handleDiscardSection(source, items)}
+                    style={{ fontSize: "11px", fontWeight: 600, color: "#EF4444", background: "none", border: "none", cursor: "pointer", padding: "0" }}
+                  >
+                    Discard all in this section
+                  </button>
+                </div>
+              )}
 
               {!collapsed && items.map((item) => {
                 const draft = drafts[item.id] || { category: "", whyMatters: "" };

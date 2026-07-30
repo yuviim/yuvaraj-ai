@@ -9,6 +9,8 @@ export interface SignalFeedSource {
 
 export const SIGNAL_FEEDS: SignalFeedSource[] = [
   { source: "OpenAI", url: "https://openai.com/news/rss.xml" },
+  { source: "Google DeepMind", url: "https://deepmind.google/blog/feed/basic/" },
+  { source: "Hugging Face", url: "https://huggingface.co/blog/feed.xml" },
   { source: "AWS", url: "https://aws.amazon.com/blogs/machine-learning/feed/" },
   { source: "Google Cloud", url: "https://cloud.google.com/blog/products/ai-machine-learning/rss" },
   { source: "Azure", url: "https://azure.microsoft.com/en-us/blog/feed/" },
