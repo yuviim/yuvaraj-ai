@@ -71,3 +71,18 @@ model ContentAudit {
   userId          String?
   createdAt       DateTime        @default(now())
 }
+
+model SignalItem {
+  id              String          @id @default(cuid())
+  title           String
+  url             String          @unique
+  source          String
+  summary         String?
+  category        String?
+  whyMatters      String?
+  status          String          @default("PENDING")
+  feedPublishedAt DateTime?
+  publishedAt     DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}

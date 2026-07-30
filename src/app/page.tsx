@@ -303,6 +303,7 @@ export default async function Home() {
             <Link href="/research">Research</Link>
             <Link href="/projects">Projects</Link>
             <Link href="/nexusiq">NexusIQ</Link>
+            <Link href="/radar">Radar</Link>
             <Link href="/videos">Videos</Link>
             <Link href="/about">About</Link>
           </div>

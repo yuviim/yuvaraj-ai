@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SearchBar } from "./SearchBar";
 
 interface SiteHeaderProps {
-  active?: "architecture" | "articles" | "research" | "projects" | "videos" | "about" | "nexusiq" | "none";
+  active?: "architecture" | "articles" | "research" | "projects" | "videos" | "about" | "nexusiq" | "radar" | "none";
 }
 
 export function SiteHeader({ active = "none" }: SiteHeaderProps) {
@@ -12,6 +12,7 @@ export function SiteHeader({ active = "none" }: SiteHeaderProps) {
     { href: "/research", label: "Research", key: "research" },
     { href: "/projects", label: "Projects", key: "projects" },
     { href: "/nexusiq", label: "NexusIQ", key: "nexusiq" },
+    { href: "/radar", label: "Radar", key: "radar" },
     { href: "/videos", label: "Videos", key: "videos" },
     { href: "/about", label: "About", key: "about" },
   ];
