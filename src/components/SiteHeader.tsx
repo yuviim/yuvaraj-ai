@@ -12,7 +12,6 @@ export function SiteHeader({ active = "none" }: SiteHeaderProps) {
     { href: "/research", label: "Research", key: "research" },
     { href: "/projects", label: "Projects", key: "projects" },
     { href: "/nexusiq", label: "NexusIQ", key: "nexusiq" },
-    { href: "/radar", label: "Radar", key: "radar" },
     { href: "/videos", label: "Videos", key: "videos" },
     { href: "/about", label: "About", key: "about" },
   ];
