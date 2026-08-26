@@ -162,7 +162,7 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* NEXUSIQ CARD — dark glass panel */}
+          {/* INDEPENDENT PROJECTS CARD — dark glass panel */}
           <div style={{
             padding: "26px", borderRadius: "14px",
             background: "rgba(255,255,255,.05)",
@@ -170,20 +170,20 @@ export default async function Home() {
             backdropFilter: "blur(6px)",
           }}>
             <span className="mono" style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.1em", color: "#63C7DE", textTransform: "uppercase" }}>
-              Flagship reference platform
+              Independent Projects
             </span>
-            <h3 style={{ margin: "6px 0 8px", color: "#fff" }}>NexusIQ</h3>
+            <h3 style={{ margin: "6px 0 8px", color: "#fff" }}>Built Solo, End to End</h3>
             <p style={{ fontSize: "13px", color: "#A9B8D4", lineHeight: 1.6 }}>
-              A working multi-agent AI control plane with Text-to-SQL, RAG, federated query
-              across four engines, role-based governance, and sovereign AI controls.
+              A growing set of full reference platforms built outside any employer engagement &mdash; each one
+              taken all the way through architecture, security, and deployment, not stopped at a diagram.
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", margin: "16px 0" }}>
-              {["AI \u2192 SQL", "RAG", "Federation", "Governance"].map((chip) => (
+              {["AI Systems", "Cloud Native", "Governance", "Security"].map((chip) => (
                 <div key={chip} className="mono" style={{ border: "1px solid rgba(99,199,222,.2)", borderRadius: "9px", padding: "9px 14px", fontSize: "11.5px", fontWeight: 500, background: "rgba(255,255,255,.03)", color: "#D6E4F0" }}>{chip}</div>
               ))}
             </div>
-            <Link href="/nexusiq" className="btn" style={{ fontSize: "12.5px", display: "inline-block", background: "linear-gradient(135deg, #63C7DE, #2C8FAD)", color: "#0A1628", fontWeight: 700 }}>
-              Architecture &amp; demo &#8594;
+            <Link href="/independent-projects" className="btn" style={{ fontSize: "12.5px", display: "inline-block", background: "linear-gradient(135deg, #63C7DE, #2C8FAD)", color: "#0A1628", fontWeight: 700 }}>
+              Explore projects &#8594;
             </Link>
           </div>
         </div>
@@ -194,7 +194,7 @@ export default async function Home() {
         {/* START HERE — bold colored header bands, no icons */}
         <section style={{ marginBottom: "48px" }}>
           <div className="eyebrow" style={{ marginBottom: "16px" }}>Recommended</div>
-          <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
+          <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
 
             <Link href="/building-enterprise-agentic-ai-systems-intro-mr6fxqfd" className="start-card" style={{ "--accent": "#F59E0B" } as React.CSSProperties}>
               <div style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#D97706", marginBottom: "10px" }}>
@@ -238,6 +238,21 @@ export default async function Home() {
               </div>
               <span style={{ fontSize: "12px", fontWeight: 600, color: "#7C3AED", display: "inline-block", marginTop: "10px" }}>
                 Explore NexusIQ &#8594;
+              </span>
+            </Link>
+
+            <Link href="/nexusretail" className="start-card" style={{ "--accent": "#FF9900" } as React.CSSProperties}>
+              <div style={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#B45F00", marginBottom: "10px" }}>
+                Built solo, end to end, on AWS
+              </div>
+              <div style={{ fontSize: "14.5px", fontWeight: 700, lineHeight: 1.35, marginBottom: "6px" }}>
+                NexusRetail &mdash; A Full AWS System, Not Just a Diagram
+              </div>
+              <div style={{ fontSize: "12.5px", color: "#6B7280", lineHeight: 1.5 }}>
+                VPC, ECS Fargate, Cognito, WAF, Textract, and CI/CD &mdash; every layer designed, deployed, and operated in a real AWS account.
+              </div>
+              <span style={{ fontSize: "12px", fontWeight: 600, color: "#B45F00", display: "inline-block", marginTop: "10px" }}>
+                Explore NexusRetail &#8594;
               </span>
             </Link>
 
@@ -302,7 +317,7 @@ export default async function Home() {
             <Link href="/articles">Articles</Link>
             <Link href="/research">Research</Link>
             <Link href="/projects">Projects</Link>
-            <Link href="/nexusiq">NexusIQ</Link>
+            <Link href="/independent-projects">Independent Projects</Link>
             <Link href="/videos">Videos</Link>
             <Link href="/about">About</Link>
           </div>

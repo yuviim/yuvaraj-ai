@@ -51,12 +51,31 @@ function ArchitectureDiagram() {
   );
 }
 
+function VideoEmbed() {
+  return (
+    <figure style={{ margin: 0, padding: 0 }}>
+      <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, overflow: "hidden", borderRadius: "12px" }}>
+        <iframe
+          src="https://www.youtube.com/embed/pvXUyB3e-5A"
+          title="NexusIQ — architecture walkthrough"
+          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: 0 }}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        />
+      </div>
+      <figcaption style={{ fontSize: "12px", color: "#9AA3B2", marginTop: "10px", textAlign: "center" }}>
+        Architecture &amp; demo walkthrough
+      </figcaption>
+    </figure>
+  );
+}
+
 export default async function NexusIQPage() {
   const related = await getContentByPillar("ES", 6);
 
   return (
     <div>
-      <SiteHeader active="nexusiq" />
+      <SiteHeader active="independent-projects" />
       <main className="wrap" style={{ paddingTop: "48px", paddingBottom: "72px" }}>
         {/* HERO */}
         <div style={{ maxWidth: "720px", marginBottom: "40px" }}>
@@ -91,6 +110,15 @@ export default async function NexusIQPage() {
         </div>
         <div className="card" style={{ padding: "24px", marginBottom: "56px" }}>
           <ArchitectureDiagram />
+        </div>
+
+        {/* WALKTHROUGH VIDEO */}
+        <div style={{ marginBottom: "16px" }}>
+          <div className="eyebrow">Full Walkthrough</div>
+          <h2 style={{ marginBottom: "8px" }}>Architecture and demo, end to end.</h2>
+        </div>
+        <div className="card" style={{ padding: "24px", marginBottom: "56px" }}>
+          <VideoEmbed />
         </div>
 
         {/* RELATED CONTENT */}
