@@ -106,15 +106,16 @@ export default function IndependentProjectsPage() {
       <main className="wrap" style={{ paddingTop: "48px", paddingBottom: "72px" }}>
 
         {/* HERO */}
-        <div style={{ marginBottom: "40px", maxWidth: "640px" }}>
-          <div className="eyebrow">Built Outside Any Employer Engagement</div>
+        <div style={{ marginBottom: "40px", maxWidth: "660px" }}>
+          <div className="eyebrow">No Employer, No Team, No Shortcuts</div>
           <h1 style={{ marginBottom: "14px" }}>
-            Independent projects.
+            What I build when nobody&rsquo;s asking me to.
           </h1>
           <p style={{ color: "#6B7280", fontSize: "15px", lineHeight: 1.7 }}>
-            {independentProjects.length} full reference platform{independentProjects.length === 1 ? "" : "s"} designed, built, and operated solo &mdash;
-            each one taken end to end rather than stopped at a diagram. Click through for the architecture, the
-            trade-offs, and what&rsquo;s still genuinely unfinished.
+            Full systems, designed and operated solo, in real cloud accounts I pay for myself. No sandbox,
+            no staging environment someone else maintains, no ticket dictating scope &mdash; every decision
+            here is one I made, deployed, broke, and fixed. Each page below covers the trade-offs, not just
+            the diagram.
           </p>
         </div>
 

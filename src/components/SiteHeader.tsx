@@ -8,10 +8,10 @@ interface SiteHeaderProps {
 
 export function SiteHeader({ active = "none" }: SiteHeaderProps) {
   const navItems: { href: string; label: string; key: string }[] = [
+    { href: "/independent-projects", label: "Independent Projects", key: "independent-projects" },
     { href: "/articles", label: "Articles", key: "articles" },
     { href: "/research", label: "Research", key: "research" },
     { href: "/projects", label: "Projects", key: "projects" },
-    { href: "/independent-projects", label: "Independent Projects", key: "independent-projects" },
     { href: "/videos", label: "Videos", key: "videos" },
     { href: "/about", label: "About", key: "about" },
   ];
